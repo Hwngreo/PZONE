@@ -112,7 +112,6 @@
                     </select>
                 </div>
                 <div>
-                    <!-- THAY ĐỔI: Input thành Select Khu Vực -->
                     <label for="pitch-location" class="block text-sm font-medium text-gray-300 mb-1">Khu V vực (Quận/Huyện)</label>
                     <select id="pitch-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
                         <option value="" disabled selected>-- Chọn Quận/Huyện --</option>
@@ -125,6 +124,11 @@
                         <option value="Hòa Vang">Hòa Vang</option>
                     </select>
                 </div>
+                <!-- MỚI: Thêm ô địa chỉ -->
+                <div>
+                    <label for="pitch-address" class="block text-sm font-medium text-gray-300 mb-1">Địa chỉ (Số nhà, đường...)</label>
+                    <input type="text" id="pitch-address" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: 123 Nguyễn Văn Linh, P. Thạc Gián">
+                </div>
                  <div>
                     <label for="pitch-contact" class="block text-sm font-medium text-gray-300 mb-1">Thông tin liên hệ (SĐT, Zalo)</label>
                     <input type="text" id="pitch-contact" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: 0905123456 (Anh Bảy)">
@@ -136,7 +140,8 @@
         <!-- TRANG 2.2: Quản Lý Sân Cụ Thể (Chủ Sân) -->
         <div id="page-owner-manage" class="page space-y-6">
             <button onclick="showPage('page-owner-menu')" class="mb-4 text-green-400 hover:text-green-300">&larr; Quay lại Menu</button>
-            <h2 id="manage-pitch-name" class="text-3xl font-bold">Đang tải tên sân...</h2>
+            <!-- SỬA: Thay đổi ID của H2 -->
+            <h2 id="manage-pitch-name-header" class="text-3xl font-bold">Đang tải tên sân...</h2>
             
             <!-- Cập nhật trạng thái sân -->
             <div>
@@ -147,14 +152,29 @@
                     <option value="closed_maintenance">Đóng cửa (bảo trì)</option>
                 </select>
             </div>
+            
+            <!-- MỚI: Cập nhật thông tin sân (Tên, Địa chỉ) -->
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Cập Nhật Thông Tin Sân</h3>
+                <form id="update-pitch-info-form" class="space-y-3">
+                    <div>
+                        <label for="manage-pitch-name" class="block text-sm font-medium text-gray-300 mb-1">Tên Sân</label>
+                        <input type="text" id="manage-pitch-name" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3">
+                    </div>
+                    <div>
+                        <label for="manage-pitch-address" class="block text-sm font-medium text-gray-300 mb-1">Địa chỉ (Số nhà, đường...)</label>
+                        <input type="text" id="manage-pitch-address" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3">
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-all">Lưu Thông Tin Sân</button>
+                </form>
+            </div>
 
-            <!-- SỬA: Cập nhật thông tin liên hệ -->
+            <!-- Cập nhật thông tin liên hệ -->
             <div>
                 <h3 class="text-xl font-semibold mb-2">Thông Tin Liên Hệ</h3>
                 <form id="update-contact-form" class="flex flex-col sm:flex-row gap-2">
-                    <!-- SỬA: Dùng <textarea> để nhập được nhiều dòng và sửa lại class responsive -->
                     <textarea id="manage-pitch-contact" rows="3" class="w-full sm:flex-1 bg-gray-700 border border-gray-600 text-white rounded-lg p-3" placeholder="SĐT, Zalo, FB... (Có thể nhập nhiều dòng)"></textarea>
-                    <button type="submit" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-2 px-4 rounded-lg shadow-md transition-all">Lưu Thay Đổi</button>
+                    <button type="submit" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-2 px-4 rounded-lg shadow-md transition-all">Lưu Liên Hệ</button>
                 </form>
             </div>
 
@@ -224,7 +244,6 @@
             
             <!-- Bộ lọc -->
             <div>
-                <!-- THAY ĐỔI: Input thành Select Lọc Khu Vực -->
                 <label for="filter-pitch-location" class="block text-sm font-medium text-gray-300 mb-1">Chọn Khu Vực (Quận/Huyện)</label>
                 <select id="filter-pitch-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
                     <option value="">-- Toàn bộ Đà Nẵng --</option>
@@ -248,6 +267,8 @@
             <!-- Chi tiết sân (ẩn) -->
             <div id="pitch-detail-view" class="hidden mt-6 bg-gray-800 p-4 rounded-lg">
                 <h3 id="detail-pitch-name" class="text-2xl font-bold"></h3>
+                <!-- MỚI: Thêm thẻ p cho địa chỉ -->
+                <p id="detail-pitch-address" class="text-gray-300 mb-1"></p>
                 <p id="detail-pitch-contact" class="text-green-400"></p>
                 <p id="detail-pitch-location" class="text-gray-400"></p>
                 <h4 class="text-lg font-semibold mt-4 mb-2">Lịch Đặt Của Sân</h4>
@@ -274,7 +295,6 @@
             <div id="tab-content-find-match-post" class="tab-content space-y-4">
                 <form id="create-match-form">
                     <div>
-                        <!-- THAY ĐỔI: Input thành Select Khu Vực -->
                         <label for="match-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực (Quận/Huyện)</label>
                         <select id="match-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
                             <option value="" disabled selected>-- Chọn Quận/Huyện --</option>
@@ -326,7 +346,6 @@
             <div id="tab-content-find-match-list" class="tab-content hidden space-y-4">
                 <!-- Bộ lọc cho danh sách kèo -->
                 <div class="grid grid-cols-2 gap-2">
-                    <!-- THAY ĐỔI: Input thành Select Lọc Khu Vực -->
                     <select id="filter-match-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
                         <option value="">-- Toàn bộ Đà Nẵng --</option>
                         <option value="Hải Châu">Hải Châu</option>
@@ -370,7 +389,6 @@
             <div id="tab-content-join-game-need" class="tab-content space-y-4">
                 <form id="create-need-player-form">
                     <div>
-                        <!-- THAY ĐỔI: Input thành Select Khu Vực -->
                         <label for="need-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực Sắp Đá (Quận/Huyện)</label>
                         <select id="need-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
                             <option value="" disabled selected>-- Chọn Quận/Huyện --</option>
@@ -413,7 +431,6 @@
             <div id="tab-content-join-game-find" class="tab-content hidden space-y-4">
                 <form id="create-find-team-form">
                      <div>
-                        <!-- THAY ĐỔI: Input thành Select Khu Vực -->
                         <label for="find-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực Muốn Đá (Quận/Huyện)</label>
                         <select id="find-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
                             <option value="" disabled selected>-- Chọn Quận/Huyện --</option>
@@ -455,7 +472,6 @@
             <div id="tab-content-join-game-list" class="tab-content hidden space-y-4">
                  <!-- Bộ lọc cho danh sách đá ké -->
                 <div class="grid grid-cols-2 gap-2">
-                    <!-- THAY ĐỔI: Input thành Select Lọc Khu Vực -->
                     <select id="filter-join-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
                         <option value="">-- Toàn bộ Đà Nẵng --</option>
                         <option value="Hải Châu">Hải Châu</option>
@@ -622,10 +638,10 @@
                         </div>
                         <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-sm">Quản Lý</button>
                     `;
-                    // SỬA: Pass toàn bộ object 'pitch'
                     pitchEl.querySelector('button').onclick = () => {
                         currentPitchId = pitch.id;
-                        document.getElementById('manage-pitch-name').textContent = pitch.name;
+                        // SỬA: Cập nhật header H2
+                        document.getElementById('manage-pitch-name-header').textContent = pitch.name; 
                         loadPitchDetails(pitch); // Pass cả object 'pitch'
                         showPage('page-owner-manage');
                     };
@@ -648,8 +664,6 @@
                     allPitchesData.push(pitch);
                     listEl.appendChild(createPitchCard(pitch));
                 });
-                // Thêm sự kiện cho bộ lọc
-                // Đổi từ oninput sang onchange vì đây là select
                 document.getElementById('filter-pitch-location').onchange = filterAllPitches;
 
             }, (error) => console.error("Lỗi tải tất cả sân: ", error));
@@ -669,7 +683,6 @@
                     allMatchmakingPosts.push(post);
                     listEl.appendChild(createMatchmakingPostCard(post));
                 });
-                // Thêm sự kiện cho bộ lọc
                 document.getElementById('filter-match-location').onchange = filterMatchmakingPosts;
                 document.getElementById('filter-match-level').onchange = filterMatchmakingPosts;
 
@@ -690,7 +703,6 @@
                     allJoinGamePosts.push(post);
                     listEl.appendChild(createJoinGamePostCard(post));
                 });
-                // Thêm sự kiện cho bộ lọc
                 document.getElementById('filter-join-location').onchange = filterJoinGamePosts;
                 document.getElementById('filter-join-type').onchange = filterJoinGamePosts;
 
@@ -717,7 +729,6 @@
         let scheduleUnsubscribe = null;
         let promotionUnsubscribe = null;
         
-        // SỬA: Nhận cả object 'pitch'
         function loadPitchDetails(pitch) {
             // Hủy đăng ký listener cũ (nếu có)
             if (scheduleUnsubscribe) scheduleUnsubscribe();
@@ -726,7 +737,11 @@
             // Cập nhật select status
             document.getElementById('pitch-status').value = pitch.status || 'open';
             
-            // MỚI: Cập nhật ô liên hệ
+            // MỚI: Cập nhật form thông tin sân
+            document.getElementById('manage-pitch-name').value = pitch.name || '';
+            document.getElementById('manage-pitch-address').value = pitch.address || '';
+            
+            // Cập nhật ô liên hệ
             document.getElementById('manage-pitch-contact').value = pitch.contact || '';
             
             // Tải lịch sân (bookings)
@@ -781,11 +796,12 @@
             const name = document.getElementById('pitch-name').value;
             const type = document.getElementById('pitch-type').value;
             const location = document.getElementById('pitch-location').value;
+            const address = document.getElementById('pitch-address').value; // MỚI
             const contact = document.getElementById('pitch-contact').value;
 
-            // Kiểm tra location vì đây là select
-            if (!name || !location || !contact) {
-                showModal("Lỗi", "Vui lòng nhập đầy đủ thông tin (Tên Sân, Khu Vực, Liên Hệ).");
+            // SỬA: Thêm 'address' vào kiểm tra
+            if (!name || !location || !address || !contact) {
+                showModal("Lỗi", "Vui lòng nhập đầy đủ thông tin (Tên Sân, Khu Vực, Địa chỉ, Liên Hệ).");
                 return;
             }
             
@@ -794,6 +810,7 @@
                     name: name,
                     type: type,
                     location: location,
+                    address: address, // MỚI
                     contact: contact,
                     status: 'open', // Mặc định là mở
                     ownerId: userId,
@@ -824,7 +841,35 @@
             }
         };
         
-        // MỚI: Form Cập nhật liên hệ
+        // MỚI: Form Cập nhật thông tin sân (tên, địa chỉ)
+        document.getElementById('update-pitch-info-form').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!currentPitchId) return;
+
+            const newName = document.getElementById('manage-pitch-name').value;
+            const newAddress = document.getElementById('manage-pitch-address').value;
+
+            if (!newName || !newAddress) {
+                showModal("Lỗi", "Tên sân và Địa chỉ không được để trống.");
+                return;
+            }
+
+            try {
+                const pitchRef = doc(db, pitchesCollectionPath, currentPitchId);
+                await updateDoc(pitchRef, {
+                    name: newName,
+                    address: newAddress
+                });
+                // Cập nhật luôn header H2
+                document.getElementById('manage-pitch-name-header').textContent = newName;
+                showModal("Thành công", "Đã cập nhật thông tin sân.");
+            } catch (error) {
+                console.error("Lỗi cập nhật thông tin sân: ", error);
+                showModal("Lỗi", "Không thể cập nhật. Vui lòng thử lại.");
+            }
+        };
+        
+        // Form Cập nhật liên hệ
         document.getElementById('update-contact-form').onsubmit = async (e) => {
             e.preventDefault();
             if (!currentPitchId) return;
@@ -918,10 +963,12 @@
                 statusText = pitch.status === 'closed_weather' ? 'Tạm đóng (Thời tiết)' : 'Tạm đóng (Bảo trì)';
             }
             
+            // SỬA: Thêm địa chỉ (pitch.address)
             pitchEl.innerHTML = `
                 <div class="flex justify-between items-center">
                     <div>
                         <h4 class="text-lg font-semibold">${pitch.name}</h4>
+                        <p class="text-sm text-gray-300">${pitch.address || 'Chưa có địa chỉ'}</p>
                         <p class="text-sm text-gray-400">${pitch.location}</p>
                     </div>
                     <span class="text-sm font-medium ${statusColor}">${statusText}</span>
@@ -933,15 +980,11 @@
         
         // Lọc danh sách sân
         function filterAllPitches() {
-            // Đã đổi sang select, sự kiện là onchange, value sẽ là giá trị của option
             const filterLocation = document.getElementById('filter-pitch-location').value;
             const listEl = document.getElementById('all-pitches-list');
             listEl.innerHTML = '';
             
             const filteredPitches = allPitchesData.filter(pitch => {
-                // Nếu filterLocation là rỗng (""), có nghĩa là "-- Toàn bộ Đà Nẵng --"
-                // thì !filterLocation là true, tất cả sân sẽ được hiển thị
-                // Nếu có chọn (ví dụ "Cẩm Lệ"), nó sẽ so sánh pitch.location === "Cẩm Lệ"
                 return !filterLocation || pitch.location === filterLocation;
             });
             
@@ -959,6 +1002,8 @@
             if (detailScheduleUnsubscribe) detailScheduleUnsubscribe();
             
             document.getElementById('detail-pitch-name').textContent = pitch.name;
+            // SỬA: Thêm địa chỉ
+            document.getElementById('detail-pitch-address').textContent = `Địa chỉ: ${pitch.address || 'Chưa cập nhật'}`;
             document.getElementById('detail-pitch-contact').textContent = `Liên hệ: ${pitch.contact}`;
             document.getElementById('detail-pitch-location').textContent = `Khu vực: ${pitch.location}`;
             
@@ -1008,7 +1053,6 @@
                 createdAt: serverTimestamp()
             };
 
-            // Kiểm tra location
             if (!post.location) {
                 showModal("Lỗi", "Vui lòng chọn khu vực (Quận/Huyện).");
                 return;
