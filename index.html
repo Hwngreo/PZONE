@@ -148,12 +148,13 @@
                 </select>
             </div>
 
-            <!-- MỚI: Cập nhật thông tin liên hệ -->
+            <!-- SỬA: Cập nhật thông tin liên hệ -->
             <div>
                 <h3 class="text-xl font-semibold mb-2">Thông Tin Liên Hệ</h3>
                 <form id="update-contact-form" class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="manage-pitch-contact" class="flex-1 bg-gray-700 border border-gray-600 text-white rounded-lg p-3" placeholder="SĐT, Zalo, FB...">
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-2 px-4 rounded-lg shadow-md transition-all">Lưu Thay Đổi</button>
+                    <!-- SỬA: Dùng <textarea> để nhập được nhiều dòng và sửa lại class responsive -->
+                    <textarea id="manage-pitch-contact" rows="3" class="w-full sm:flex-1 bg-gray-700 border border-gray-600 text-white rounded-lg p-3" placeholder="SĐT, Zalo, FB... (Có thể nhập nhiều dòng)"></textarea>
+                    <button type="submit" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-2 px-4 rounded-lg shadow-md transition-all">Lưu Thay Đổi</button>
                 </form>
             </div>
 
