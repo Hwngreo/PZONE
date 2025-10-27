@@ -148,6 +148,15 @@
                 </select>
             </div>
 
+            <!-- MỚI: Cập nhật thông tin liên hệ -->
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Thông Tin Liên Hệ</h3>
+                <form id="update-contact-form" class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="manage-pitch-contact" class="flex-1 bg-gray-700 border border-gray-600 text-white rounded-lg p-3" placeholder="SĐT, Zalo, FB...">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-2 px-4 rounded-lg shadow-md transition-all">Lưu Thay Đổi</button>
+                </form>
+            </div>
+
             <!-- Lịch sân -->
             <div>
                 <h3 class="text-xl font-semibold mb-2">Lịch Sân Hôm Nay</h3>
@@ -524,7 +533,7 @@
   messagingSenderId : "793942989163" , 
   appId : "1:793942989163:web:1fb88fb936346c494c542e" , 
   measurementId : "G-XF0YD5NZVZ" 
-        };
+};
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // Đường dẫn cơ sở dữ liệu (công khai)
@@ -612,10 +621,11 @@
                         </div>
                         <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-sm">Quản Lý</button>
                     `;
+                    // SỬA: Pass toàn bộ object 'pitch'
                     pitchEl.querySelector('button').onclick = () => {
                         currentPitchId = pitch.id;
                         document.getElementById('manage-pitch-name').textContent = pitch.name;
-                        loadPitchDetails(pitch.id, pitch.status);
+                        loadPitchDetails(pitch); // Pass cả object 'pitch'
                         showPage('page-owner-manage');
                     };
                     listEl.appendChild(pitchEl);
@@ -706,17 +716,21 @@
         let scheduleUnsubscribe = null;
         let promotionUnsubscribe = null;
         
-        function loadPitchDetails(pitchId, pitchStatus) {
+        // SỬA: Nhận cả object 'pitch'
+        function loadPitchDetails(pitch) {
             // Hủy đăng ký listener cũ (nếu có)
             if (scheduleUnsubscribe) scheduleUnsubscribe();
             if (promotionUnsubscribe) promotionUnsubscribe();
 
             // Cập nhật select status
-            document.getElementById('pitch-status').value = pitchStatus || 'open';
+            document.getElementById('pitch-status').value = pitch.status || 'open';
+            
+            // MỚI: Cập nhật ô liên hệ
+            document.getElementById('manage-pitch-contact').value = pitch.contact || '';
             
             // Tải lịch sân (bookings)
             const scheduleListEl = document.getElementById('pitch-schedule-list');
-            const bookingsPath = `${pitchesCollectionPath}/${pitchId}/bookings`;
+            const bookingsPath = `${pitchesCollectionPath}/${pitch.id}/bookings`; // Dùng pitch.id
             const bookingsQuery = query(collection(db, bookingsPath)); // Sắp xếp theo ngày
             
             scheduleUnsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
@@ -744,7 +758,7 @@
             // Tải khuyến mãi của sân này
             const promotionListEl = document.getElementById('promotion-list');
             const promosPath = promotionsCollectionPath;
-            const promosQuery = query(collection(db, promosPath), where("pitchId", "==", pitchId));
+            const promosQuery = query(collection(db, promosPath), where("pitchId", "==", pitch.id)); // Dùng pitch.id
             
             promotionUnsubscribe = onSnapshot(promosQuery, (snapshot) => {
                 if (snapshot.empty) {
@@ -809,6 +823,29 @@
             }
         };
         
+        // MỚI: Form Cập nhật liên hệ
+        document.getElementById('update-contact-form').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!currentPitchId) return;
+            
+            const newContact = document.getElementById('manage-pitch-contact').value;
+            if (!newContact) {
+                showModal("Lỗi", "Thông tin liên hệ không được để trống.");
+                return;
+            }
+
+            try {
+                const pitchRef = doc(db, pitchesCollectionPath, currentPitchId);
+                await updateDoc(pitchRef, {
+                    contact: newContact
+                });
+                showModal("Thành công", "Đã cập nhật thông tin liên hệ.");
+            } catch (error) {
+                console.error("Lỗi cập nhật liên hệ: ", error);
+                showModal("Lỗi", "Không thể cập nhật. Vui lòng thử lại.");
+            }
+        };
+
         // Form Thêm Lịch Đặt (Thủ công)
         document.getElementById('add-booking-form').onsubmit = async (e) => {
             e.preventDefault();
