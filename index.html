@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PZONE - Đặt Kèo, Tìm Sân</title>
+    <title>PZONE - Đặt Kèo, Tìm Sân (Đà Nẵng)</title>
     <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tải thư viện icon (Heroicons) -->
@@ -46,7 +46,8 @@
         <!-- Header chung -->
         <header class="mb-6 text-center">
             <h1 class="text-4xl font-bold text-green-400">PZONE</h1>
-            <p class="text-gray-400" id="user-id-display">Đang tải...</p>
+            <!-- UserID đã được ẩn bằng class 'hidden' -->
+            <p class="text-gray-400 hidden" id="user-id-display">Đang tải...</p>
         </header>
 
         <!-- Loading Spinner -->
@@ -57,7 +58,12 @@
 
         <!-- TRANG 1: Đăng nhập / Đăng ký -->
         <div id="page-login" class="page active space-y-4">
-            <h2 class="text-2xl font-semibold text-center mb-6">Chào mừng bạn!</h2>
+            <h2 class="text-2xl font-semibold text-center mb-2">Chào mừng bạn!</h2>
+            <!-- THÔNG BÁO KHU VỰC ĐÀ NẴNG -->
+            <p class="text-lg text-yellow-400 text-center mb-6">
+                <ion-icon name="location-sharp" class="mr-1"></ion-icon>
+                Hiện tại PZONE chỉ phục vụ khu vực Đà Nẵng
+            </p>
             <button onclick="showPage('page-player-menu')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all text-lg">
                 <ion-icon name="person-outline" class="mr-2"></ion-icon>
                 Tôi là Người Chơi
@@ -101,8 +107,18 @@
                     </select>
                 </div>
                 <div>
-                    <label for="pitch-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực (Quận/Huyện)</label>
-                    <input type="text" id="pitch-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Cẩm Lệ">
+                    <!-- THAY ĐỔI: Input thành Select Khu Vực -->
+                    <label for="pitch-location" class="block text-sm font-medium text-gray-300 mb-1">Khu V vực (Quận/Huyện)</label>
+                    <select id="pitch-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                        <option value="" disabled selected>-- Chọn Quận/Huyện --</option>
+                        <option value="Hải Châu">Hải Châu</option>
+                        <option value="Thanh Khê">Thanh Khê</option>
+                        <option value="Sơn Trà">Sơn Trà</option>
+                        <option value="Ngũ Hành Sơn">Ngũ Hành Sơn</option>
+                        <option value="Liên Chiểu">Liên Chiểu</option>
+                        <option value="Cẩm Lệ">Cẩm Lệ</option>
+                        <option value="Hòa Vang">Hòa Vang</option>
+                    </select>
                 </div>
                  <div>
                     <label for="pitch-contact" class="block text-sm font-medium text-gray-300 mb-1">Thông tin liên hệ (SĐT, Zalo)</label>
@@ -193,8 +209,18 @@
             
             <!-- Bộ lọc -->
             <div>
-                <label for="filter-pitch-location" class="block text-sm font-medium text-gray-300 mb-1">Chọn Khu Vực</label>
-                <input type="text" id="filter-pitch-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Nhập khu vực (ví dụ: Cẩm Lệ) - Để trống để xem tất cả">
+                <!-- THAY ĐỔI: Input thành Select Lọc Khu Vực -->
+                <label for="filter-pitch-location" class="block text-sm font-medium text-gray-300 mb-1">Chọn Khu Vực (Quận/Huyện)</label>
+                <select id="filter-pitch-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                    <option value="">-- Toàn bộ Đà Nẵng --</option>
+                    <option value="Hải Châu">Hải Châu</option>
+                    <option value="Thanh Khê">Thanh Khê</option>
+                    <option value="Sơn Trà">Sơn Trà</option>
+                    <option value="Ngũ Hành Sơn">Ngũ Hành Sơn</option>
+                    <option value="Liên Chiểu">Liên Chiểu</option>
+                    <option value="Cẩm Lệ">Cẩm Lệ</option>
+                    <option value="Hòa Vang">Hòa Vang</option>
+                </select>
             </div>
 
             <!-- Danh sách sân -->
@@ -233,8 +259,18 @@
             <div id="tab-content-find-match-post" class="tab-content space-y-4">
                 <form id="create-match-form">
                     <div>
-                        <label for="match-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực</label>
-                        <input type="text" id="match-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Cẩm Lệ">
+                        <!-- THAY ĐỔI: Input thành Select Khu Vực -->
+                        <label for="match-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực (Quận/Huyện)</label>
+                        <select id="match-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                            <option value="" disabled selected>-- Chọn Quận/Huyện --</option>
+                            <option value="Hải Châu">Hải Châu</option>
+                            <option value="Thanh Khê">Thanh Khê</option>
+                            <option value="Sơn Trà">Sơn Trà</option>
+                            <option value="Ngũ Hành Sơn">Ngũ Hành Sơn</option>
+                            <option value="Liên Chiểu">Liên Chiểu</option>
+                            <option value="Cẩm Lệ">Cẩm Lệ</option>
+                            <option value="Hòa Vang">Hòa Vang</option>
+                        </select>
                     </div>
                     <div>
                         <label for="match-team-level" class="block text-sm font-medium text-gray-300 mb-1">Trình Độ Team Bạn</label>
@@ -275,7 +311,17 @@
             <div id="tab-content-find-match-list" class="tab-content hidden space-y-4">
                 <!-- Bộ lọc cho danh sách kèo -->
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="filter-match-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2" placeholder="Lọc theo khu vực">
+                    <!-- THAY ĐỔI: Input thành Select Lọc Khu Vực -->
+                    <select id="filter-match-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
+                        <option value="">-- Toàn bộ Đà Nẵng --</option>
+                        <option value="Hải Châu">Hải Châu</option>
+                        <option value="Thanh Khê">Thanh Khê</option>
+                        <option value="Sơn Trà">Sơn Trà</option>
+                        <option value="Ngũ Hành Sơn">Ngũ Hành Sơn</option>
+                        <option value="Liên Chiểu">Liên Chiểu</option>
+                        <option value="Cẩm Lệ">Cẩm Lệ</option>
+                        <option value="Hòa Vang">Hòa Vang</option>
+                    </select>
                     <select id="filter-match-level" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
                         <option value="">Lọc theo trình độ</option>
                         <option value="Yếu">Yếu</option>
@@ -309,8 +355,18 @@
             <div id="tab-content-join-game-need" class="tab-content space-y-4">
                 <form id="create-need-player-form">
                     <div>
-                        <label for="need-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực Sắp Đá</label>
-                        <input type="text" id="need-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Cẩm Lệ">
+                        <!-- THAY ĐỔI: Input thành Select Khu Vực -->
+                        <label for="need-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực Sắp Đá (Quận/Huyện)</label>
+                        <select id="need-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                            <option value="" disabled selected>-- Chọn Quận/Huyện --</option>
+                            <option value="Hải Châu">Hải Châu</option>
+                            <option value="Thanh Khê">Thanh Khê</option>
+                            <option value="Sơn Trà">Sơn Trà</option>
+                            <option value="Ngũ Hành Sơn">Ngũ Hành Sơn</option>
+                            <option value="Liên Chiểu">Liên Chiểu</option>
+                            <option value="Cẩm Lệ">Cẩm Lệ</option>
+                            <option value="Hòa Vang">Hòa Vang</option>
+                        </select>
                     </div>
                     <div>
                         <label for="need-level" class="block text-sm font-medium text-gray-300 mb-1">Yêu Cầu Trình Độ</label>
@@ -342,8 +398,18 @@
             <div id="tab-content-join-game-find" class="tab-content hidden space-y-4">
                 <form id="create-find-team-form">
                      <div>
-                        <label for="find-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực Muốn Đá</label>
-                        <input type="text" id="find-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Cẩm Lệ">
+                        <!-- THAY ĐỔI: Input thành Select Khu Vực -->
+                        <label for="find-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực Muốn Đá (Quận/Huyện)</label>
+                        <select id="find-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                            <option value="" disabled selected>-- Chọn Quận/Huyện --</option>
+                            <option value="Hải Châu">Hải Châu</option>
+                            <option value="Thanh Khê">Thanh Khê</option>
+                            <option value="Sơn Trà">Sơn Trà</option>
+                            <option value="Ngũ Hành Sơn">Ngũ Hành Sơn</option>
+                            <option value="Liên Chiểu">Liên Chiểu</option>
+                            <option value="Cẩm Lệ">Cẩm Lệ</option>
+                            <option value="Hòa Vang">Hòa Vang</option>
+                        </select>
                     </div>
                     <div>
                         <label for="find-level" class="block text-sm font-medium text-gray-300 mb-1">Trình Độ Của Bạn</label>
@@ -374,7 +440,17 @@
             <div id="tab-content-join-game-list" class="tab-content hidden space-y-4">
                  <!-- Bộ lọc cho danh sách đá ké -->
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="filter-join-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2" placeholder="Lọc theo khu vực">
+                    <!-- THAY ĐỔI: Input thành Select Lọc Khu Vực -->
+                    <select id="filter-join-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
+                        <option value="">-- Toàn bộ Đà Nẵng --</option>
+                        <option value="Hải Châu">Hải Châu</option>
+                        <option value="Thanh Khê">Thanh Khê</option>
+                        <option value="Sơn Trà">Sơn Trà</option>
+                        <option value="Ngũ Hành Sơn">Ngũ Hành Sơn</option>
+                        <option value="Liên Chiểu">Liên Chiểu</option>
+                        <option value="Cẩm Lệ">Cẩm Lệ</option>
+                        <option value="Hòa Vang">Hòa Vang</option>
+                    </select>
                     <select id="filter-join-type" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
                         <option value="">Tất cả bài đăng</option>
                         <option value="need_player">Đội cần người</option>
@@ -434,17 +510,12 @@
 
         // --- CẤU HÌNH FIREBASE ---
         // Các biến này ( __firebase_config, __app_id, __initial_auth_token ) sẽ được cung cấp bởi môi trường chạy
+        // DÁN firebaseConfig CỦA BẠN VÀO ĐÂY
         const firebaseConfig = { 
-  apiKey : "AIzaSyAeX5HypfZepbnAJJwAujaMJ9SmLkaUIQA" , 
-  authDomain : "pzone-c2e4c.firebaseapp.com" , 
-  projectId : "pzone-c2e4c" , 
-  storageBucket : "pzone-c2e4c.firebasestorage.app" , 
-  messagingSenderId : "793942989163" , 
-  appId : "1:793942989163:web:1fb88fb936346c494c542e" , 
-  measurementId : "G-XF0YD5NZVZ" 
-};
-
-
+            apiKey: "AIzaSy...", 
+            authDomain: "pzone-cua-ban.firebaseapp.com", 
+            // ... (dán phần còn lại của bạn vào đây)
+        };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // Đường dẫn cơ sở dữ liệu (công khai)
@@ -457,6 +528,11 @@
         // --- KHỞI TẠO ỨNG DỤNG ---
         function initializeAppCore() {
             try {
+                // Đảm bảo firebaseConfig không rỗng
+                if (!firebaseConfig.apiKey) {
+                    throw new Error("Chưa cấu hình Firebase. Vui lòng dán firebaseConfig của bạn vào code.");
+                }
+                
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -467,7 +543,7 @@
                 setupAuthListener();
             } catch (error) {
                 console.error("Lỗi khởi tạo Firebase: ", error);
-                document.getElementById('loading-spinner').innerHTML = '<p class="text-red-500">Lỗi kết nối máy chủ. Vui lòng tải lại trang.</p>';
+                document.getElementById('loading-spinner').innerHTML = `<p class="text-red-500">Lỗi kết nối máy chủ. Vui lòng kiểm tra lại cấu hình Firebase.</p>`;
             }
         }
 
@@ -478,7 +554,8 @@
                     // Người dùng đã đăng nhập
                     userId = user.uid;
                     console.log("Đã đăng nhập với UserID:", userId);
-                    document.getElementById('user-id-display').textContent = `UserID: ${userId}`;
+                    // Ẩn UserID khỏi giao diện, nhưng vẫn giữ nó trong console
+                    document.getElementById('user-id-display').textContent = `UserID: ${userId}`; // Giữ dòng này để debug
                     
                     // Tải dữ liệu ban đầu
                     initAppListeners();
@@ -488,19 +565,15 @@
                     showPage('page-login');
 
                 } else {
-                    // Người dùng chưa đăng nhập, thử đăng nhập
-                    console.log("Chưa đăng nhập, đang thử đăng nhập...");
+                    // Người dùng chưa đăng nhập, thử đăng nhập ẩn danh
+                    console.log("Chưa đăng nhập, đang thử đăng nhập ẩn danh...");
                     try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            console.log("Đang thử đăng nhập với custom token...");
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            console.log("Không tìm thấy custom token, đang thử đăng nhập ẩn danh...");
-                            await signInAnonymously(auth);
-                        }
+                        // Bỏ qua __initial_auth_token vì chúng ta đang chạy độc lập
+                        await signInAnonymously(auth);
+                        
                     } catch (error) {
-                        console.error("Lỗi đăng nhập: ", error);
-                        document.getElementById('loading-spinner').innerHTML = '<p class="text-red-500">Lỗi xác thực. Vui lòng tải lại trang.</p>';
+                        console.error("Lỗi đăng nhập ẩn danh: ", error);
+                        document.getElementById('loading-spinner').innerHTML = '<p class="text-red-500">Lỗi xác thực. Vui lòng kiểm tra cài đặt Authentication trong Firebase.</p>';
                     }
                 }
             });
@@ -556,7 +629,8 @@
                     listEl.appendChild(createPitchCard(pitch));
                 });
                 // Thêm sự kiện cho bộ lọc
-                document.getElementById('filter-pitch-location').oninput = filterAllPitches;
+                // Đổi từ oninput sang onchange vì đây là select
+                document.getElementById('filter-pitch-location').onchange = filterAllPitches;
 
             }, (error) => console.error("Lỗi tải tất cả sân: ", error));
             
@@ -576,7 +650,7 @@
                     listEl.appendChild(createMatchmakingPostCard(post));
                 });
                 // Thêm sự kiện cho bộ lọc
-                document.getElementById('filter-match-location').oninput = filterMatchmakingPosts;
+                document.getElementById('filter-match-location').onchange = filterMatchmakingPosts;
                 document.getElementById('filter-match-level').onchange = filterMatchmakingPosts;
 
             }, (error) => console.error("Lỗi tải bài đăng tìm kèo: ", error));
@@ -597,7 +671,7 @@
                     listEl.appendChild(createJoinGamePostCard(post));
                 });
                 // Thêm sự kiện cho bộ lọc
-                document.getElementById('filter-join-location').oninput = filterJoinGamePosts;
+                document.getElementById('filter-join-location').onchange = filterJoinGamePosts;
                 document.getElementById('filter-join-type').onchange = filterJoinGamePosts;
 
             }, (error) => console.error("Lỗi tải bài đăng đá ké: ", error));
@@ -685,8 +759,9 @@
             const location = document.getElementById('pitch-location').value;
             const contact = document.getElementById('pitch-contact').value;
 
+            // Kiểm tra location vì đây là select
             if (!name || !location || !contact) {
-                showModal("Lỗi", "Vui lòng nhập đầy đủ Tên Sân, Khu Vực và Liên Hệ.");
+                showModal("Lỗi", "Vui lòng nhập đầy đủ thông tin (Tên Sân, Khu Vực, Liên Hệ).");
                 return;
             }
             
@@ -811,12 +886,16 @@
         
         // Lọc danh sách sân
         function filterAllPitches() {
-            const filterLocation = document.getElementById('filter-pitch-location').value.toLowerCase();
+            // Đã đổi sang select, sự kiện là onchange, value sẽ là giá trị của option
+            const filterLocation = document.getElementById('filter-pitch-location').value;
             const listEl = document.getElementById('all-pitches-list');
             listEl.innerHTML = '';
             
             const filteredPitches = allPitchesData.filter(pitch => {
-                return pitch.location.toLowerCase().includes(filterLocation);
+                // Nếu filterLocation là rỗng (""), có nghĩa là "-- Toàn bộ Đà Nẵng --"
+                // thì !filterLocation là true, tất cả sân sẽ được hiển thị
+                // Nếu có chọn (ví dụ "Cẩm Lệ"), nó sẽ so sánh pitch.location === "Cẩm Lệ"
+                return !filterLocation || pitch.location === filterLocation;
             });
             
             if(filteredPitches.length === 0) {
@@ -881,6 +960,12 @@
                 userId: userId,
                 createdAt: serverTimestamp()
             };
+
+            // Kiểm tra location
+            if (!post.location) {
+                showModal("Lỗi", "Vui lòng chọn khu vực (Quận/Huyện).");
+                return;
+            }
             
             try {
                 await addDoc(collection(db, matchmakingPostsCollectionPath), post);
@@ -909,13 +994,13 @@
 
         // Lọc bài đăng tìm kèo
         function filterMatchmakingPosts() {
-            const filterLocation = document.getElementById('filter-match-location').value.toLowerCase();
+            const filterLocation = document.getElementById('filter-match-location').value;
             const filterLevel = document.getElementById('filter-match-level').value;
             const listEl = document.getElementById('matchmaking-posts-list');
             listEl.innerHTML = '';
 
             const filteredPosts = allMatchmakingPosts.filter(post => {
-                const locationMatch = post.location.toLowerCase().includes(filterLocation);
+                const locationMatch = !filterLocation || post.location === filterLocation;
                 const levelMatch = !filterLevel || post.teamLevel === filterLevel || post.opponentLevel === filterLevel || post.opponentLevel === "Bất kỳ";
                 return locationMatch && levelMatch;
             });
@@ -943,6 +1028,11 @@
                 createdAt: serverTimestamp()
             };
             
+            if (!post.location) {
+                showModal("Lỗi", "Vui lòng chọn khu vực (Quận/Huyện).");
+                return;
+            }
+
             try {
                 await addDoc(collection(db, joinGamePostsCollectionPath), post);
                 showModal("Thành công", "Đã đăng bài cần người.");
@@ -968,6 +1058,11 @@
                 createdAt: serverTimestamp()
             };
             
+            if (!post.location) {
+                showModal("Lỗi", "Vui lòng chọn khu vực (Quận/Huyện).");
+                return;
+            }
+
             try {
                 await addDoc(collection(db, joinGamePostsCollectionPath), post);
                 showModal("Thành công", "Đã đăng bài tìm đội.");
@@ -1006,13 +1101,13 @@
 
         // Lọc bài đăng đá ké
         function filterJoinGamePosts() {
-            const filterLocation = document.getElementById('filter-join-location').value.toLowerCase();
+            const filterLocation = document.getElementById('filter-join-location').value;
             const filterType = document.getElementById('filter-join-type').value;
             const listEl = document.getElementById('join-game-posts-list');
             listEl.innerHTML = '';
 
             const filteredPosts = allJoinGamePosts.filter(post => {
-                const locationMatch = post.location.toLowerCase().includes(filterLocation);
+                const locationMatch = !filterLocation || post.location === filterLocation;
                 const typeMatch = !filterType || post.type === filterType;
                 return locationMatch && typeMatch;
             });
@@ -1066,6 +1161,8 @@
                 }
                 if (pageId === 'page-find-pitch') {
                     // Đã tự động tải qua onSnapshot
+                    // Cập nhật lại bộ lọc
+                    filterAllPitches();
                 }
             } else {
                 console.warn("Không tìm thấy trang:", pageId);
