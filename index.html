@@ -512,10 +512,18 @@
         // Các biến này ( __firebase_config, __app_id, __initial_auth_token ) sẽ được cung cấp bởi môi trường chạy
         // DÁN firebaseConfig CỦA BẠN VÀO ĐÂY
         const firebaseConfig = { 
-            apiKey: "AIzaSy...", 
-            authDomain: "pzone-cua-ban.firebaseapp.com", 
-            // ... (dán phần còn lại của bạn vào đây)
-        };
+  apiKey : "AIzaSyAeX5HypfZepbnAJJwAujaMJ9SmLkaUIQA" , 
+  authDomain : "pzone-c2e4c.firebaseapp.com" , 
+  projectId : "pzone-c2e4c" , 
+  storageBucket : "pzone-c2e4c.firebasestorage.app" , 
+  messagingSenderId : "793942989163" , 
+  appId : "1:793942989163:web:1fb88fb936346c494c542e" , 
+  measurementId : "G-XF0YD5NZVZ" 
+};
+
+// Initialize Firebase
+const app = initializeApp ( firebaseConfig );
+const analytics = getAnalytics ( app );
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // Đường dẫn cơ sở dữ liệu (công khai)
