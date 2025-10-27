@@ -38,10 +38,15 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen antialiased">
+<!-- 
+    *** THAY ĐỔI BỐ CỤC ***
+    Đã thêm 'flex items-center justify-center' để căn giữa nội dung
+    khi màn hình lớn (như máy tính), giúp giao diện cân đối hơn.
+-->
+<body class="bg-gray-900 text-white min-h-screen antialiased flex items-center justify-center">
 
     <!-- Container chính -->
-    <div class="container max-w-3xl mx-auto p-4">
+    <div class="container max-w-3xl mx-auto p-4 w-full">
 
         <!-- Header chung -->
         <header class="mb-6 text-center">
@@ -512,15 +517,10 @@
         // Các biến này ( __firebase_config, __app_id, __initial_auth_token ) sẽ được cung cấp bởi môi trường chạy
         // DÁN firebaseConfig CỦA BẠN VÀO ĐÂY
         const firebaseConfig = { 
-  apiKey : "AIzaSyAeX5HypfZepbnAJJwAujaMJ9SmLkaUIQA" , 
-  authDomain : "pzone-c2e4c.firebaseapp.com" , 
-  projectId : "pzone-c2e4c" , 
-  storageBucket : "pzone-c2e4c.firebasestorage.app" , 
-  messagingSenderId : "793942989163" , 
-  appId : "1:793942989163:web:1fb88fb936346c494c542e" , 
-  measurementId : "G-XF0YD5NZVZ" 
-};
-
+            apiKey: "AIzaSy...", 
+            authDomain: "pzone-cua-ban.firebaseapp.com", 
+            // ... (dán phần còn lại của bạn vào đây)
+        };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // Đường dẫn cơ sở dữ liệu (công khai)
@@ -534,7 +534,7 @@
         function initializeAppCore() {
             try {
                 // Đảm bảo firebaseConfig không rỗng
-                if (!firebaseConfig.apiKey) {
+                if (firebaseConfig.apiKey === "AIzaSy..." || !firebaseConfig.apiKey) {
                     throw new Error("Chưa cấu hình Firebase. Vui lòng dán firebaseConfig của bạn vào code.");
                 }
                 
