@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sân Bóng 24/7 - Đặt Kèo, Tìm Sân</title>
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tải thư viện icon (Heroicons) -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <style>
+        /* Sử dụng font Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Ẩn tất cả các "trang" (div) theo mặc định */
+        .page {
+            display: none;
+        }
+        /* Hiển thị trang đang hoạt động */
+        .page.active {
+            display: block;
+        }
+        /* Tùy chỉnh thanh cuộn */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2d3748; /* bg-gray-800 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568; /* bg-gray-600 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096; /* bg-gray-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen antialiased">
+
+    <!-- Container chính -->
+    <div class="container max-w-3xl mx-auto p-4">
+
+        <!-- Header chung -->
+        <header class="mb-6 text-center">
+            <h1 class="text-4xl font-bold text-green-400">Sân Bóng 24/7</h1>
+            <p class="text-gray-400" id="user-id-display">Đang tải...</p>
+        </header>
+
+        <!-- Loading Spinner -->
+        <div id="loading-spinner" class="text-center p-10">
+            <div class="w-12 h-12 border-4 border-green-400 border-t-transparent border-solid rounded-full animate-spin mx-auto"></div>
+            <p class="mt-4 text-gray-400">Đang kết nối đến máy chủ...</p>
+        </div>
+
+        <!-- TRANG 1: Đăng nhập / Đăng ký -->
+        <div id="page-login" class="page active space-y-4">
+            <h2 class="text-2xl font-semibold text-center mb-6">Chào mừng bạn!</h2>
+            <button onclick="showPage('page-player-menu')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all text-lg">
+                <ion-icon name="person-outline" class="mr-2"></ion-icon>
+                Tôi là Người Chơi
+            </button>
+            <button onclick="showPage('page-owner-menu')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all text-lg">
+                <ion-icon name="business-outline" class="mr-2"></ion-icon>
+                Tôi là Chủ Sân
+            </button>
+        </div>
+
+        <!-- TRANG 2.1: Menu Chủ Sân -->
+        <div id="page-owner-menu" class="page space-y-4">
+            <button onclick="showPage('page-login')" class="mb-4 text-green-400 hover:text-green-300">&larr; Quay lại</button>
+            <h2 class="text-2xl font-semibold mb-4">Quản Lý Sân</h2>
+            <button onclick="showPage('page-owner-create-pitch')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all">
+                <ion-icon name="add-circle-outline" class="mr-2"></ion-icon>
+                Đăng ký Sân Mới
+            </button>
+            <h3 class="text-xl font-semibold mt-6 mb-2">Sân Của Tôi</h3>
+            <div id="my-pitches-list" class="space-y-3">
+                <!-- Danh sách sân của chủ sân sẽ được tải vào đây -->
+                <p class="text-gray-500">Chưa có sân nào. Vui lòng đăng ký sân mới.</p>
+            </div>
+        </div>
+        
+        <!-- TRANG 2.1.1: Tạo Sân Mới (Chủ Sân) -->
+        <div id="page-owner-create-pitch" class="page space-y-4">
+            <button onclick="showPage('page-owner-menu')" class="mb-4 text-green-400 hover:text-green-300">&larr; Quay lại</button>
+            <h2 class="text-2xl font-semibold mb-4">Đăng Ký Sân Mới</h2>
+            <form id="create-pitch-form">
+                <div>
+                    <label for="pitch-name" class="block text-sm font-medium text-gray-300 mb-1">Tên Sân</label>
+                    <input type="text" id="pitch-name" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Sân bóng PZONE">
+                </div>
+                <div>
+                    <label for="pitch-type" class="block text-sm font-medium text-gray-300 mb-1">Loại Sân</label>
+                    <select id="pitch-type" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                        <option value="football">Đá bóng</option>
+                        <option value="badminton">Cầu lông</option>
+                        <option value="other">Khác</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="pitch-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực (Quận/Huyện)</label>
+                    <input type="text" id="pitch-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Cẩm Lệ">
+                </div>
+                 <div>
+                    <label for="pitch-contact" class="block text-sm font-medium text-gray-300 mb-1">Thông tin liên hệ (SĐT, Zalo)</label>
+                    <input type="text" id="pitch-contact" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: 0905123456 (Anh Bảy)">
+                </div>
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all mt-4">Tạo Sân</button>
+            </form>
+        </div>
+
+        <!-- TRANG 2.2: Quản Lý Sân Cụ Thể (Chủ Sân) -->
+        <div id="page-owner-manage" class="page space-y-6">
+            <button onclick="showPage('page-owner-menu')" class="mb-4 text-green-400 hover:text-green-300">&larr; Quay lại Menu</button>
+            <h2 id="manage-pitch-name" class="text-3xl font-bold">Đang tải tên sân...</h2>
+            
+            <!-- Cập nhật trạng thái sân -->
+            <div>
+                <label for="pitch-status" class="block text-sm font-medium text-gray-300 mb-1">Trạng Thái Sân</label>
+                <select id="pitch-status" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                    <option value="open">Đang mở cửa</option>
+                    <option value="closed_weather">Đóng cửa (do thời tiết)</option>
+                    <option value="closed_maintenance">Đóng cửa (bảo trì)</option>
+                </select>
+            </div>
+
+            <!-- Lịch sân -->
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Lịch Sân Hôm Nay</h3>
+                <div id="pitch-schedule-list" class="space-y-2 bg-gray-800 p-4 rounded-lg min-h-[100px]">
+                    <!-- Lịch đặt sẽ được tải vào đây -->
+                    <p class="text-gray-500">Chưa có lịch đặt nào hôm nay.</p>
+                </div>
+            </div>
+
+            <!-- Thêm lịch đặt thủ công -->
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Thêm Lịch Đặt Mới (Thủ công)</h3>
+                <form id="add-booking-form" class="grid grid-cols-3 gap-2">
+                    <input type="date" id="booking-date" required class="col-span-3 bg-gray-700 border border-gray-600 text-white rounded-lg p-2">
+                    <input type="time" id="booking-start-time" required class="col-span-1 bg-gray-700 border border-gray-600 text-white rounded-lg p-2">
+                    <input type="time" id="booking-end-time" required class="col-span-1 bg-gray-700 border border-gray-600 text-white rounded-lg p-2">
+                    <button type="submit" class="col-span-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg shadow-md transition-all">Thêm</button>
+                    <input type="text" id="booking-notes" class="col-span-3 bg-gray-700 border border-gray-600 text-white rounded-lg p-2 mt-2" placeholder="Ghi chú (ví dụ: Đội A)">
+                </form>
+            </div>
+            
+            <!-- Đăng khuyến mãi -->
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Đăng Bài (Khuyến mãi, Thông báo)</h3>
+                <form id="add-promotion-form">
+                    <textarea id="promotion-content" rows="3" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Giảm giá 20% khung giờ 13h-15h..."></textarea>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all mt-2">Đăng Bài</button>
+                </form>
+                <div id="promotion-list" class="mt-4 space-y-3">
+                    <!-- Các bài đăng sẽ hiện ở đây -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TRANG 3.1: Menu Người Chơi -->
+        <div id="page-player-menu" class="page space-y-4">
+            <button onclick="showPage('page-login')" class="mb-4 text-green-400 hover:text-green-300">&larr; Quay lại</button>
+            <h2 class="text-2xl font-semibold mb-4">Bạn muốn làm gì?</h2>
+            <button onclick="showPage('page-find-pitch')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all text-lg">
+                <ion-icon name="search-outline" class="mr-2"></ion-icon>
+                Tìm Sân Trống
+            </button>
+            <button onclick="showPage('page-find-match')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all text-lg">
+                <ion-icon name="people-circle-outline" class="mr-2"></ion-icon>
+                Tìm Kèo (Tìm đối thủ)
+            </button>
+            <button onclick="showPage('page-join-game')" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all text-lg">
+                <ion-icon name="person-add-outline" class="mr-2"></ion-icon>
+                Đá Ké (Tìm đội/Cần người)
+            </button>
+             <div class="mt-6 pt-6 border-t border-gray-700">
+                <h3 class="text-xl font-semibold mb-4 text-center">Thông Báo & Khuyến Mãi Sân</h3>
+                <div id="all-promotions-list" class="space-y-3 max-h-64 overflow-y-auto">
+                    <!-- Tất cả khuyến mãi sẽ được tải vào đây -->
+                    <p class="text-gray-500 text-center">Chưa có thông báo nào.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRANG 3.1.1: Tìm Sân Trống -->
+        <div id="page-find-pitch" class="page space-y-4">
+            <button onclick="showPage('page-player-menu')" class="mb-4 text-green-400 hover:text-green-300">&larr; Quay lại</button>
+            <h2 class="text-2xl font-semibold mb-4">Tìm Sân Trống</h2>
+            
+            <!-- Bộ lọc -->
+            <div>
+                <label for="filter-pitch-location" class="block text-sm font-medium text-gray-300 mb-1">Chọn Khu Vực</label>
+                <input type="text" id="filter-pitch-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Nhập khu vực (ví dụ: Cẩm Lệ) - Để trống để xem tất cả">
+            </div>
+
+            <!-- Danh sách sân -->
+            <h3 class="text-xl font-semibold mt-6 mb-2">Danh Sách Sân</h3>
+            <div id="all-pitches-list" class="space-y-3">
+                <!-- Danh sách tất cả sân sẽ được tải vào đây -->
+                <p class="text-gray-500">Đang tải danh sách sân...</p>
+            </div>
+            
+            <!-- Chi tiết sân (ẩn) -->
+            <div id="pitch-detail-view" class="hidden mt-6 bg-gray-800 p-4 rounded-lg">
+                <h3 id="detail-pitch-name" class="text-2xl font-bold"></h3>
+                <p id="detail-pitch-contact" class="text-green-400"></p>
+                <p id="detail-pitch-location" class="text-gray-400"></p>
+                <h4 class="text-lg font-semibold mt-4 mb-2">Lịch Đặt Của Sân</h4>
+                <div id="detail-pitch-schedule" class="space-y-2">
+                    <!-- Lịch của sân được chọn sẽ tải ở đây -->
+                </div>
+                <p class="mt-4 text-sm text-gray-300">Vui lòng liên hệ chủ sân qua thông tin bên trên để đặt sân vào giờ trống.</p>
+                <button onclick="closePitchDetail()" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg">Đóng</button>
+            </div>
+        </div>
+        
+        <!-- TRANG 3.1.2: Tìm Kèo -->
+        <div id="page-find-match" class="page space-y-4">
+            <button onclick="showPage('page-player-menu')" class="mb-4 text-green-400 hover:text-green-300">&larr; Quay lại</button>
+            <h2 class="text-2xl font-semibold mb-4">Tìm Kèo (Tìm Đối Thủ)</h2>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-700">
+                <button id="tab-find-match-post" onclick="showTab('find-match', 'post')" class="flex-1 py-2 px-4 text-center font-semibold text-green-400 border-b-2 border-green-400">Đăng Kèo Mới</button>
+                <button id="tab-find-match-list" onclick="showTab('find-match', 'list')" class="flex-1 py-2 px-4 text-center font-semibold text-gray-500">Xem Các Kèo</button>
+            </div>
+            
+            <!-- Tab Đăng Kèo Mới -->
+            <div id="tab-content-find-match-post" class="tab-content space-y-4">
+                <form id="create-match-form">
+                    <div>
+                        <label for="match-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực</label>
+                        <input type="text" id="match-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Cẩm Lệ">
+                    </div>
+                    <div>
+                        <label for="match-team-level" class="block text-sm font-medium text-gray-300 mb-1">Trình Độ Team Bạn</label>
+                        <select id="match-team-level" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                            <option value="Yếu">Yếu</option>
+                            <option value="Trung bình - Yếu">Trung bình - Yếu</option>
+                            <option value="Trung bình">Trung bình</option>
+                            <option value="Trung bình - Khá">Trung bình - Khá</option>
+                            <option value="Khá">Khá</option>
+                            <option value="Mạnh">Mạnh</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="match-opponent-level" class="block text-sm font-medium text-gray-300 mb-1">Trình Độ Đối Thủ Muốn Tìm</label>
+                        <select id="match-opponent-level" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                            <option value="Bất kỳ">Bất kỳ</option>
+                            <option value="Yếu">Yếu</option>
+                            <option value="Trung bình - Yếu">Trung bình - Yếu</option>
+                            <option value="Trung bình">Trung bình</option>
+                            <option value="Trung bình - Khá">Trung bình - Khá</option>
+                            <option value="Khá">Khá</option>
+                            <option value="Mạnh">Mạnh</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="match-time" class="block text-sm font-medium text-gray-300 mb-1">Giờ Muốn Đá (dự kiến)</label>
+                        <input type="text" id="match-time" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: 17h - 19h, Tối nay">
+                    </div>
+                    <div>
+                        <label for="match-contact" class="block text-sm font-medium text-gray-300 mb-1">Liên Hệ (SĐT, Zalo)</label>
+                        <input type="text" id="match-contact" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Để đối thủ liên hệ bạn">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all mt-4">Đăng Bài Tìm Kèo</button>
+                </form>
+            </div>
+            
+            <!-- Tab Xem Các Kèo -->
+            <div id="tab-content-find-match-list" class="tab-content hidden space-y-4">
+                <!-- Bộ lọc cho danh sách kèo -->
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="filter-match-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2" placeholder="Lọc theo khu vực">
+                    <select id="filter-match-level" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
+                        <option value="">Lọc theo trình độ</option>
+                        <option value="Yếu">Yếu</option>
+                        <option value="Trung bình - Yếu">Trung bình - Yếu</option>
+                        <option value="Trung bình">Trung bình</option>
+                        <option value="Trung bình - Khá">Trung bình - Khá</option>
+                        <option value="Khá">Khá</option>
+                        <option value="Mạnh">Mạnh</option>
+                    </select>
+                </div>
+                <div id="matchmaking-posts-list" class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- Danh sách các kèo đang tìm đối thủ sẽ tải ở đây -->
+                    <p class="text-gray-500">Chưa có ai đăng kèo.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TRANG 3.1.3 & 3.1.4: Đá Ké -->
+        <div id="page-join-game" class="page space-y-4">
+            <button onclick="showPage('page-player-menu')" class="mb-4 text-green-400 hover:text-green-300">&larr; Quay lại</button>
+            <h2 class="text-2xl font-semibold mb-4">Tìm Người / Tìm Đội Đá Ké</h2>
+            
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-700">
+                <button id="tab-join-game-need" onclick="showTab('join-game', 'need')" class="flex-1 py-2 px-4 text-center font-semibold text-green-400 border-b-2 border-green-400">Đội Tôi Cần Người</button>
+                <button id="tab-join-game-find" onclick="showTab('join-game', 'find')" class="flex-1 py-2 px-4 text-center font-semibold text-gray-500">Tôi Muốn Tham Gia</button>
+                <button id="tab-join-game-list" onclick="showTab('join-game', 'list')" class="flex-1 py-2 px-4 text-center font-semibold text-gray-500">Xem Bài Đăng</button>
+            </div>
+            
+            <!-- Tab Đội Cần Người -->
+            <div id="tab-content-join-game-need" class="tab-content space-y-4">
+                <form id="create-need-player-form">
+                    <div>
+                        <label for="need-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực Sắp Đá</label>
+                        <input type="text" id="need-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Cẩm Lệ">
+                    </div>
+                    <div>
+                        <label for="need-level" class="block text-sm font-medium text-gray-300 mb-1">Yêu Cầu Trình Độ</label>
+                        <select id="need-level" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                            <option value="Bất kỳ">Bất kỳ</option>
+                            <option value="Yếu">Yếu</option>
+                            <option value="Trung bình">Trung bình</option>
+                            <option value="Khá">Khá</option>
+                            <option value="Mạnh">Mạnh</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="need-time" class="block text-sm font-medium text-gray-300 mb-1">Giờ Đá</label>
+                        <input type="text" id="need-time" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: 19h Tối nay">
+                    </div>
+                    <div>
+                        <label for="need-count" class="block text-sm font-medium text-gray-300 mb-1">Cần Bao Nhiêu Người</label>
+                        <input type="number" id="need-count" min="1" value="1" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                    </div>
+                     <div>
+                        <label for="need-contact" class="block text-sm font-medium text-gray-300 mb-1">Liên Hệ (SĐT, Zalo)</label>
+                        <input type="text" id="need-contact" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Để người đá ké liên hệ bạn">
+                    </div>
+                    <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all mt-4">Đăng Bài Cần Người</button>
+                </form>
+            </div>
+            
+            <!-- Tab Tìm Đội Tham Gia -->
+            <div id="tab-content-join-game-find" class="tab-content hidden space-y-4">
+                <form id="create-find-team-form">
+                     <div>
+                        <label for="find-location" class="block text-sm font-medium text-gray-300 mb-1">Khu Vực Muốn Đá</label>
+                        <input type="text" id="find-location" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Cẩm Lệ">
+                    </div>
+                    <div>
+                        <label for="find-level" class="block text-sm font-medium text-gray-300 mb-1">Trình Độ Của Bạn</label>
+                        <select id="find-level" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                            <option value="Yếu">Yếu</option>
+                            <option value="Trung bình">Trung bình</option>
+                            <option value="Khá">Khá</option>
+                            <option value="Mạnh">Mạnh</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="find-time" class="block text-sm font-medium text-gray-300 mb-1">Giờ Rảnh</label>
+                        <input type="text" id="find-time" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: Tối nay">
+                    </div>
+                    <div>
+                        <label for="find-count" class="block text-sm font-medium text-gray-300 mb-1">Số Lượng Người (Team bạn)</label>
+                        <input type="number" id="find-count" min="1" value="1" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3">
+                    </div>
+                    <div>
+                        <label for="find-contact" class="block text-sm font-medium text-gray-300 mb-1">Liên Hệ (SĐT, Zalo)</label>
+                        <input type="text" id="find-contact" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Để đội trưởng liên hệ bạn">
+                    </div>
+                    <button type="submit" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all mt-4">Đăng Bài Tìm Đội</button>
+                </form>
+            </div>
+            
+            <!-- Tab Xem Bài Đăng Đá Ké -->
+            <div id="tab-content-join-game-list" class="tab-content hidden space-y-4">
+                 <!-- Bộ lọc cho danh sách đá ké -->
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="filter-join-location" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2" placeholder="Lọc theo khu vực">
+                    <select id="filter-join-type" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
+                        <option value="">Tất cả bài đăng</option>
+                        <option value="need_player">Đội cần người</option>
+                        <option value="find_team">Người tìm đội</option>
+                    </select>
+                </div>
+                <div id="join-game-posts-list" class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- Danh sách các bài đăng đá ké sẽ tải ở đây -->
+                    <p class="text-gray-500">Chưa có bài đăng đá ké nào.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (Thông báo tùy chỉnh) -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full">
+            <h3 id="modal-title" class="text-xl font-semibold mb-4">Thông báo</h3>
+            <p id="modal-message" class="text-gray-300 mb-6">Nội dung thông báo...</p>
+            <button onclick="closeModal()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">
+                Đã hiểu
+            </button>
+        </div>
+    </div>
+
+    <!-- Tải Firebase SDK -->
+    <script type="module">
+        // Import các hàm cần thiết từ Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            addDoc, 
+            collection, 
+            query, 
+            where, 
+            onSnapshot, 
+            serverTimestamp,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- BIẾN TOÀN CỤC ---
+        let app, db, auth;
+        let userId = null;
+        let currentPitchId = null; // ID của sân đang được quản lý
+        let allPitchesData = []; // Cache danh sách sân
+        let allMatchmakingPosts = []; // Cache danh sách kèo
+        let allJoinGamePosts = []; // Cache danh sách đá ké
+
+        // --- CẤU HÌNH FIREBASE ---
+        // Các biến này ( __firebase_config, __app_id, __initial_auth_token ) sẽ được cung cấp bởi môi trường chạy
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Đường dẫn cơ sở dữ liệu (công khai)
+        const publicDataPath = `artifacts/${appId}/public/data`;
+        const pitchesCollectionPath = `${publicDataPath}/pitches`;
+        const matchmakingPostsCollectionPath = `${publicDataPath}/matchmaking_posts`;
+        const joinGamePostsCollectionPath = `${publicDataPath}/join_game_posts`;
+        const promotionsCollectionPath = `${publicDataPath}/promotions`;
+
+        // --- KHỞI TẠO ỨNG DỤNG ---
+        function initializeAppCore() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                // Bật log chi tiết (hữu ích khi debug)
+                // setLogLevel('Debug');
+
+                setupAuthListener();
+            } catch (error) {
+                console.error("Lỗi khởi tạo Firebase: ", error);
+                document.getElementById('loading-spinner').innerHTML = '<p class="text-red-500">Lỗi kết nối máy chủ. Vui lòng tải lại trang.</p>';
+            }
+        }
+
+        // --- QUẢN LÝ XÁC THỰC ---
+        function setupAuthListener() {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    // Người dùng đã đăng nhập
+                    userId = user.uid;
+                    console.log("Đã đăng nhập với UserID:", userId);
+                    document.getElementById('user-id-display').textContent = `UserID: ${userId}`;
+                    
+                    // Tải dữ liệu ban đầu
+                    initAppListeners();
+                    
+                    // Ẩn loading và hiển thị trang đăng nhập
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    showPage('page-login');
+
+                } else {
+                    // Người dùng chưa đăng nhập, thử đăng nhập
+                    console.log("Chưa đăng nhập, đang thử đăng nhập...");
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            console.log("Đang thử đăng nhập với custom token...");
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            console.log("Không tìm thấy custom token, đang thử đăng nhập ẩn danh...");
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Lỗi đăng nhập: ", error);
+                        document.getElementById('loading-spinner').innerHTML = '<p class="text-red-500">Lỗi xác thực. Vui lòng tải lại trang.</p>';
+                    }
+                }
+            });
+        }
+        
+        // --- TẢI DỮ LIỆU ĐỘNG (REALTIME) ---
+        function initAppListeners() {
+            if (!db) return;
+
+            // 1. Tải danh sách sân của tôi (Chủ sân)
+            const myPitchesQuery = query(collection(db, pitchesCollectionPath), where("ownerId", "==", userId));
+            onSnapshot(myPitchesQuery, (snapshot) => {
+                const listEl = document.getElementById('my-pitches-list');
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-500">Bạn chưa đăng ký sân nào.</p>';
+                    return;
+                }
+                listEl.innerHTML = ''; // Xóa danh sách cũ
+                snapshot.forEach((doc) => {
+                    const pitch = { id: doc.id, ...doc.data() };
+                    const pitchEl = document.createElement('div');
+                    pitchEl.className = 'bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center';
+                    pitchEl.innerHTML = `
+                        <div>
+                            <h4 class="text-lg font-semibold">${pitch.name}</h4>
+                            <p class="text-sm text-gray-400">${pitch.location} - ${pitch.type}</p>
+                        </div>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-sm">Quản Lý</button>
+                    `;
+                    pitchEl.querySelector('button').onclick = () => {
+                        currentPitchId = pitch.id;
+                        document.getElementById('manage-pitch-name').textContent = pitch.name;
+                        loadPitchDetails(pitch.id, pitch.status);
+                        showPage('page-owner-manage');
+                    };
+                    listEl.appendChild(pitchEl);
+                });
+            }, (error) => console.error("Lỗi tải sân của tôi: ", error));
+
+            // 2. Tải tất cả các sân (Người chơi)
+            const allPitchesQuery = query(collection(db, pitchesCollectionPath));
+            onSnapshot(allPitchesQuery, (snapshot) => {
+                const listEl = document.getElementById('all-pitches-list');
+                allPitchesData = []; // Xóa cache
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-500">Chưa có sân nào trên hệ thống.</p>';
+                    return;
+                }
+                listEl.innerHTML = ''; // Xóa danh sách cũ
+                snapshot.forEach((doc) => {
+                    const pitch = { id: doc.id, ...doc.data() };
+                    allPitchesData.push(pitch);
+                    listEl.appendChild(createPitchCard(pitch));
+                });
+                // Thêm sự kiện cho bộ lọc
+                document.getElementById('filter-pitch-location').oninput = filterAllPitches;
+
+            }, (error) => console.error("Lỗi tải tất cả sân: ", error));
+            
+            // 3. Tải tất cả bài đăng tìm kèo (Người chơi)
+            const matchmakingQuery = query(collection(db, matchmakingPostsCollectionPath));
+            onSnapshot(matchmakingQuery, (snapshot) => {
+                const listEl = document.getElementById('matchmaking-posts-list');
+                allMatchmakingPosts = [];
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-500 text-center">Chưa có ai đăng kèo.</p>';
+                    return;
+                }
+                listEl.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const post = { id: doc.id, ...doc.data() };
+                    allMatchmakingPosts.push(post);
+                    listEl.appendChild(createMatchmakingPostCard(post));
+                });
+                // Thêm sự kiện cho bộ lọc
+                document.getElementById('filter-match-location').oninput = filterMatchmakingPosts;
+                document.getElementById('filter-match-level').onchange = filterMatchmakingPosts;
+
+            }, (error) => console.error("Lỗi tải bài đăng tìm kèo: ", error));
+
+            // 4. Tải tất cả bài đăng đá ké (Người chơi)
+            const joinGameQuery = query(collection(db, joinGamePostsCollectionPath));
+            onSnapshot(joinGameQuery, (snapshot) => {
+                const listEl = document.getElementById('join-game-posts-list');
+                allJoinGamePosts = [];
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-500 text-center">Chưa có bài đăng đá ké nào.</p>';
+                    return;
+                }
+                listEl.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const post = { id: doc.id, ...doc.data() };
+                    allJoinGamePosts.push(post);
+                    listEl.appendChild(createJoinGamePostCard(post));
+                });
+                // Thêm sự kiện cho bộ lọc
+                document.getElementById('filter-join-location').oninput = filterJoinGamePosts;
+                document.getElementById('filter-join-type').onchange = filterJoinGamePosts;
+
+            }, (error) => console.error("Lỗi tải bài đăng đá ké: ", error));
+            
+            // 5. Tải tất cả khuyến mãi (Người chơi)
+            const allPromosQuery = query(collection(db, promotionsCollectionPath));
+            onSnapshot(allPromosQuery, (snapshot) => {
+                const listEl = document.getElementById('all-promotions-list');
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-500 text-center">Chưa có thông báo nào.</p>';
+                    return;
+                }
+                listEl.innerHTML = '';
+                snapshot.forEach(doc => {
+                    listEl.appendChild(createPromotionCard(doc.data(), true)); // true = public view
+                });
+            }, (error) => console.error("Lỗi tải khuyến mãi: ", error));
+        }
+        
+        // --- QUẢN LÝ SÂN (CHỦ SÂN) ---
+        
+        // Tải chi tiết 1 sân (lịch, khuyến mãi)
+        let scheduleUnsubscribe = null;
+        let promotionUnsubscribe = null;
+        
+        function loadPitchDetails(pitchId, pitchStatus) {
+            // Hủy đăng ký listener cũ (nếu có)
+            if (scheduleUnsubscribe) scheduleUnsubscribe();
+            if (promotionUnsubscribe) promotionUnsubscribe();
+
+            // Cập nhật select status
+            document.getElementById('pitch-status').value = pitchStatus || 'open';
+            
+            // Tải lịch sân (bookings)
+            const scheduleListEl = document.getElementById('pitch-schedule-list');
+            const bookingsPath = `${pitchesCollectionPath}/${pitchId}/bookings`;
+            const bookingsQuery = query(collection(db, bookingsPath)); // Sắp xếp theo ngày
+            
+            scheduleUnsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
+                if (snapshot.empty) {
+                    scheduleListEl.innerHTML = '<p class="text-gray-500">Chưa có lịch đặt.</p>';
+                    return;
+                }
+                scheduleListEl.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const booking = doc.data();
+                    const bookingEl = document.createElement('div');
+                    bookingEl.className = 'bg-gray-700 p-3 rounded-lg flex justify-between items-center';
+                    bookingEl.innerHTML = `
+                        <div>
+                            <p class="font-semibold">${booking.date} (${booking.startTime} - ${booking.endTime})</p>
+                            <p class="text-sm text-gray-300">${booking.notes || 'Không có ghi chú'}</p>
+                        </div>
+                        <button class="text-red-500 hover:text-red-400">&times;</button>
+                    `;
+                    // TODO: Thêm sự kiện xóa booking
+                    scheduleListEl.appendChild(bookingEl);
+                });
+            }, (error) => console.error("Lỗi tải lịch sân: ", error));
+
+            // Tải khuyến mãi của sân này
+            const promotionListEl = document.getElementById('promotion-list');
+            const promosPath = promotionsCollectionPath;
+            const promosQuery = query(collection(db, promosPath), where("pitchId", "==", pitchId));
+            
+            promotionUnsubscribe = onSnapshot(promosQuery, (snapshot) => {
+                if (snapshot.empty) {
+                    promotionListEl.innerHTML = '<p class="text-gray-500 text-sm">Chưa có bài đăng nào.</p>';
+                    return;
+                }
+                promotionListEl.innerHTML = '';
+                snapshot.forEach(doc => {
+                    promotionListEl.appendChild(createPromotionCard(doc.data(), false)); // false = owner view
+                });
+            }, (error) => console.error("Lỗi tải khuyến mãi: ", error));
+        }
+
+        // --- XỬ LÝ FORM (CHỦ SÂN) ---
+
+        // Form Tạo Sân Mới
+        document.getElementById('create-pitch-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('pitch-name').value;
+            const type = document.getElementById('pitch-type').value;
+            const location = document.getElementById('pitch-location').value;
+            const contact = document.getElementById('pitch-contact').value;
+
+            if (!name || !location || !contact) {
+                showModal("Lỗi", "Vui lòng nhập đầy đủ Tên Sân, Khu Vực và Liên Hệ.");
+                return;
+            }
+            
+            try {
+                await addDoc(collection(db, pitchesCollectionPath), {
+                    name: name,
+                    type: type,
+                    location: location,
+                    contact: contact,
+                    status: 'open', // Mặc định là mở
+                    ownerId: userId,
+                    createdAt: serverTimestamp()
+                });
+                showModal("Thành công", `Đã đăng ký sân ${name}.`);
+                e.target.reset();
+                showPage('page-owner-menu');
+            } catch (error) {
+                console.error("Lỗi tạo sân: ", error);
+                showModal("Lỗi", "Không thể tạo sân. Vui lòng thử lại.");
+            }
+        };
+
+        // Form Cập nhật trạng thái sân
+        document.getElementById('pitch-status').onchange = async (e) => {
+            if (!currentPitchId) return;
+            const newStatus = e.target.value;
+            try {
+                const pitchRef = doc(db, pitchesCollectionPath, currentPitchId);
+                await updateDoc(pitchRef, {
+                    status: newStatus
+                });
+                showModal("Thành công", "Đã cập nhật trạng thái sân.");
+            } catch (error) {
+                console.error("Lỗi cập nhật trạng thái: ", error);
+                showModal("Lỗi", "Không thể cập nhật. Vui lòng thử lại.");
+            }
+        };
+        
+        // Form Thêm Lịch Đặt (Thủ công)
+        document.getElementById('add-booking-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const date = document.getElementById('booking-date').value;
+            const startTime = document.getElementById('booking-start-time').value;
+            const endTime = document.getElementById('booking-end-time').value;
+            const notes = document.getElementById('booking-notes').value;
+
+            if (!date || !startTime || !endTime) {
+                showModal("Lỗi", "Vui lòng chọn ngày và giờ.");
+                return;
+            }
+
+            try {
+                const bookingsPath = `${pitchesCollectionPath}/${currentPitchId}/bookings`;
+                await addDoc(collection(db, bookingsPath), {
+                    date: date,
+                    startTime: startTime,
+                    endTime: endTime,
+                    notes: notes || 'Đã đặt (Thủ công)',
+                    status: 'booked',
+                    createdAt: serverTimestamp()
+                });
+                showModal("Thành công", "Đã thêm lịch đặt.");
+                e.target.reset();
+            } catch (error) {
+                console.error("Lỗi thêm booking: ", error);
+                showModal("Lỗi", "Không thể thêm lịch đặt. Vui lòng thử lại.");
+            }
+        };
+        
+        // Form Đăng Khuyến Mãi
+        document.getElementById('add-promotion-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const content = document.getElementById('promotion-content').value;
+            if (!content) return;
+            
+             // Lấy thông tin sân
+            const pitchRef = doc(db, pitchesCollectionPath, currentPitchId);
+            const pitchSnap = await getDoc(pitchRef);
+            const pitchData = pitchSnap.data();
+
+            try {
+                await addDoc(collection(db, promotionsCollectionPath), {
+                    content: content,
+                    pitchId: currentPitchId,
+                    pitchName: pitchData.name, // Thêm tên sân để dễ hiển thị
+                    pitchLocation: pitchData.location, // Thêm khu vực
+                    createdAt: serverTimestamp()
+                });
+                showModal("Thành công", "Đã đăng bài.");
+                e.target.reset();
+            } catch (error) {
+                console.error("Lỗi đăng khuyến mãi: ", error);
+                showModal("Lỗi", "Không thể đăng bài. Vui lòng thử lại.");
+            }
+        };
+
+        // --- TÌM SÂN (NGƯỜI CHƠI) ---
+
+        // Tạo thẻ Sân
+        function createPitchCard(pitch) {
+            const pitchEl = document.createElement('div');
+            pitchEl.className = 'bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 transition-all';
+            let statusColor = 'text-green-400';
+            let statusText = 'Đang mở cửa';
+            if (pitch.status && pitch.status !== 'open') {
+                statusColor = 'text-red-400';
+                statusText = pitch.status === 'closed_weather' ? 'Tạm đóng (Thời tiết)' : 'Tạm đóng (Bảo trì)';
+            }
+            
+            pitchEl.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h4 class="text-lg font-semibold">${pitch.name}</h4>
+                        <p class="text-sm text-gray-400">${pitch.location}</p>
+                    </div>
+                    <span class="text-sm font-medium ${statusColor}">${statusText}</span>
+                </div>
+            `;
+            pitchEl.onclick = () => showPitchDetail(pitch);
+            return pitchEl;
+        }
+        
+        // Lọc danh sách sân
+        function filterAllPitches() {
+            const filterLocation = document.getElementById('filter-pitch-location').value.toLowerCase();
+            const listEl = document.getElementById('all-pitches-list');
+            listEl.innerHTML = '';
+            
+            const filteredPitches = allPitchesData.filter(pitch => {
+                return pitch.location.toLowerCase().includes(filterLocation);
+            });
+            
+            if(filteredPitches.length === 0) {
+                 listEl.innerHTML = '<p class="text-gray-500">Không tìm thấy sân nào.</p>';
+                 return;
+            }
+            filteredPitches.forEach(pitch => listEl.appendChild(createPitchCard(pitch)));
+        }
+        
+        let detailScheduleUnsubscribe = null;
+
+        // Hiển thị chi tiết sân
+        async function showPitchDetail(pitch) {
+            if (detailScheduleUnsubscribe) detailScheduleUnsubscribe();
+            
+            document.getElementById('detail-pitch-name').textContent = pitch.name;
+            document.getElementById('detail-pitch-contact').textContent = `Liên hệ: ${pitch.contact}`;
+            document.getElementById('detail-pitch-location').textContent = `Khu vực: ${pitch.location}`;
+            
+            const scheduleEl = document.getElementById('detail-pitch-schedule');
+            scheduleEl.innerHTML = '<p class="text-gray-400">Đang tải lịch sân...</p>';
+            
+            const bookingsPath = `${pitchesCollectionPath}/${pitch.id}/bookings`;
+            const bookingsQuery = query(collection(db, bookingsPath)); // Lấy lịch đặt
+            
+            detailScheduleUnsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
+                 if (snapshot.empty) {
+                    scheduleEl.innerHTML = '<p class="text-gray-300">Sân chưa có lịch đặt. Vui lòng liên hệ chủ sân.</p>';
+                    return;
+                }
+                scheduleEl.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const booking = doc.data();
+                    const bookingEl = document.createElement('div');
+                    bookingEl.className = 'bg-gray-700 p-2 rounded-md';
+                    bookingEl.textContent = `Đã đặt: ${booking.date} (${booking.startTime} - ${booking.endTime})`;
+                    scheduleEl.appendChild(bookingEl);
+                });
+            });
+
+            document.getElementById('pitch-detail-view').classList.remove('hidden');
+        }
+        
+        window.closePitchDetail = () => {
+             if (detailScheduleUnsubscribe) detailScheduleUnsubscribe();
+             document.getElementById('pitch-detail-view').classList.add('hidden');
+        }
+
+
+        // --- TÌM KÈO (NGƯỜI CHƠI) ---
+        
+        // Form Đăng Kèo
+        document.getElementById('create-match-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const post = {
+                location: document.getElementById('match-location').value,
+                teamLevel: document.getElementById('match-team-level').value,
+                opponentLevel: document.getElementById('match-opponent-level').value,
+                time: document.getElementById('match-time').value,
+                contact: document.getElementById('match-contact').value,
+                type: 'find_match',
+                userId: userId,
+                createdAt: serverTimestamp()
+            };
+            
+            try {
+                await addDoc(collection(db, matchmakingPostsCollectionPath), post);
+                showModal("Thành công", "Đã đăng bài tìm kèo. Chuyển sang tab 'Xem Các Kèo' để xem bài đăng.");
+                e.target.reset();
+                showTab('find-match', 'list'); // Tự động chuyển tab
+            } catch (error) {
+                console.error("Lỗi đăng kèo: ", error);
+                showModal("Lỗi", "Không thể đăng bài. Vui lòng thử lại.");
+            }
+        };
+        
+        // Tạo thẻ Bài Đăng Tìm Kèo
+        function createMatchmakingPostCard(post) {
+            const postEl = document.createElement('div');
+            postEl.className = 'bg-gray-800 p-4 rounded-lg shadow-md';
+            postEl.innerHTML = `
+                <p class="text-sm text-gray-400">Khu vực: <span class="font-semibold text-gray-200">${post.location}</span></p>
+                <p class="text-sm text-gray-400">Team mình: <span class="font-semibold text-green-400">${post.teamLevel}</span></p>
+                <p class="text-sm text-gray-400">Tìm đối: <span class="font-semibold text-orange-400">${post.opponentLevel}</span></p>
+                <p class="text-sm text-gray-400">Giờ đá: <span class="font-semibold text-gray-200">${post.time}</span></p>
+                <p class="mt-2 text-md text-green-300">Liên hệ: ${post.contact}</p>
+            `;
+            return postEl;
+        }
+
+        // Lọc bài đăng tìm kèo
+        function filterMatchmakingPosts() {
+            const filterLocation = document.getElementById('filter-match-location').value.toLowerCase();
+            const filterLevel = document.getElementById('filter-match-level').value;
+            const listEl = document.getElementById('matchmaking-posts-list');
+            listEl.innerHTML = '';
+
+            const filteredPosts = allMatchmakingPosts.filter(post => {
+                const locationMatch = post.location.toLowerCase().includes(filterLocation);
+                const levelMatch = !filterLevel || post.teamLevel === filterLevel || post.opponentLevel === filterLevel || post.opponentLevel === "Bất kỳ";
+                return locationMatch && levelMatch;
+            });
+            
+            if(filteredPosts.length === 0) {
+                 listEl.innerHTML = '<p class="text-gray-500 text-center">Không tìm thấy kèo nào.</p>';
+                 return;
+            }
+            filteredPosts.forEach(post => listEl.appendChild(createMatchmakingPostCard(post)));
+        }
+
+        // --- ĐÁ KÉ (NGƯỜI CHƠI) ---
+        
+        // Form Cần Người
+        document.getElementById('create-need-player-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const post = {
+                location: document.getElementById('need-location').value,
+                level: document.getElementById('need-level').value,
+                time: document.getElementById('need-time').value,
+                count: document.getElementById('need-count').value,
+                contact: document.getElementById('need-contact').value,
+                type: 'need_player', // Đội cần người
+                userId: userId,
+                createdAt: serverTimestamp()
+            };
+            
+            try {
+                await addDoc(collection(db, joinGamePostsCollectionPath), post);
+                showModal("Thành công", "Đã đăng bài cần người.");
+                e.target.reset();
+                showTab('join-game', 'list'); // Tự động chuyển tab
+            } catch (error) {
+                console.error("Lỗi đăng bài cần người: ", error);
+                showModal("Lỗi", "Không thể đăng bài. Vui lòng thử lại.");
+            }
+        };
+
+        // Form Tìm Đội
+        document.getElementById('create-find-team-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const post = {
+                location: document.getElementById('find-location').value,
+                level: document.getElementById('find-level').value,
+                time: document.getElementById('find-time').value,
+                count: document.getElementById('find-count').value,
+                contact: document.getElementById('find-contact').value,
+                type: 'find_team', // Người tìm đội
+                userId: userId,
+                createdAt: serverTimestamp()
+            };
+            
+            try {
+                await addDoc(collection(db, joinGamePostsCollectionPath), post);
+                showModal("Thành công", "Đã đăng bài tìm đội.");
+                e.target.reset();
+                showTab('join-game', 'list'); // Tự động chuyển tab
+            } catch (error) {
+                console.error("Lỗi đăng bài tìm đội: ", error);
+                showModal("Lỗi", "Không thể đăng bài. Vui lòng thử lại.");
+            }
+        };
+        
+        // Tạo thẻ Bài Đăng Đá Ké
+        function createJoinGamePostCard(post) {
+            const postEl = document.createElement('div');
+            postEl.className = 'bg-gray-800 p-4 rounded-lg shadow-md';
+            
+            if(post.type === 'need_player') {
+                postEl.innerHTML = `
+                    <p class="font-semibold text-orange-400">ĐỘI CẦN NGƯỜI (${post.count} người)</p>
+                    <p class="text-sm text-gray-400">Khu vực: <span class="font-semibold text-gray-200">${post.location}</span></p>
+                    <p class="text-sm text-gray-400">Trình độ: <span class="font-semibold text-gray-200">${post.level}</span></p>
+                    <p class="text-sm text-gray-400">Giờ đá: <span class="font-semibold text-gray-200">${post.time}</span></p>
+                    <p class="mt-2 text-md text-green-300">Liên hệ: ${post.contact}</p>
+                `;
+            } else { // find_team
+                postEl.innerHTML = `
+                    <p class="font-semibold text-teal-400">NGƯỜI TÌM ĐỘI (${post.count} người)</p>
+                    <p class="text-sm text-gray-400">Khu vực: <span class="font-semibold text-gray-200">${post.location}</span></p>
+                    <p class="text-sm text-gray-400">Trình độ: <span class="font-semibold text-gray-200">${post.level}</span></p>
+                    <p class="text-sm text-gray-400">Giờ rảnh: <span class="font-semibold text-gray-200">${post.time}</span></p>
+                    <p class="mt-2 text-md text-green-300">Liên hệ: ${post.contact}</p>
+                `;
+            }
+            return postEl;
+        }
+
+        // Lọc bài đăng đá ké
+        function filterJoinGamePosts() {
+            const filterLocation = document.getElementById('filter-join-location').value.toLowerCase();
+            const filterType = document.getElementById('filter-join-type').value;
+            const listEl = document.getElementById('join-game-posts-list');
+            listEl.innerHTML = '';
+
+            const filteredPosts = allJoinGamePosts.filter(post => {
+                const locationMatch = post.location.toLowerCase().includes(filterLocation);
+                const typeMatch = !filterType || post.type === filterType;
+                return locationMatch && typeMatch;
+            });
+            
+            if(filteredPosts.length === 0) {
+                 listEl.innerHTML = '<p class="text-gray-500 text-center">Không tìm thấy bài đăng nào.</p>';
+                 return;
+            }
+            filteredPosts.forEach(post => listEl.appendChild(createJoinGamePostCard(post)));
+        }
+
+        // --- TIỆN ÍCH CHUNG ---
+        
+        // Tạo thẻ Khuyến mãi/Thông báo
+        function createPromotionCard(post, isPublic) {
+            const postEl = document.createElement('div');
+            postEl.className = `bg-gray-800 p-4 rounded-lg ${isPublic ? '' : 'border border-gray-700'}`;
+            
+            let header = '';
+            if (isPublic) {
+                header = `
+                    <p class="text-sm font-semibold text-blue-400">${post.pitchName}</p>
+                    <p class="text-xs text-gray-500 mb-2">${post.pitchLocation}</p>
+                `;
+            }
+            
+            postEl.innerHTML = `
+                ${header}
+                <p class="text-gray-300">${post.content}</p>
+                <p class="text-xs text-gray-500 mt-2">${post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleString('vi-VN') : 'Vừa xong'}</p>
+            `;
+            // TODO: Thêm nút xóa cho chủ sân
+            return postEl;
+        }
+
+        // Điều hướng "trang" (SPA)
+        window.showPage = (pageId) => {
+            // Ẩn tất cả các trang
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            // Hiển thị trang được yêu cầu
+            const newPage = document.getElementById(pageId);
+            if (newPage) {
+                newPage.classList.add('active');
+                window.scrollTo(0, 0); // Cuộn lên đầu trang
+                
+                // Tải lại dữ liệu khi vào trang (nếu cần)
+                if (pageId === 'page-owner-menu' && auth.currentUser) {
+                    // Đã tự động tải qua onSnapshot
+                }
+                if (pageId === 'page-find-pitch') {
+                    // Đã tự động tải qua onSnapshot
+                }
+            } else {
+                console.warn("Không tìm thấy trang:", pageId);
+                document.getElementById('page-login').classList.add('active'); // Về trang chủ nếu lỗi
+            }
+        };
+        
+        // Quản lý Tabs
+        window.showTab = (pagePrefix, tabId) => {
+            // Ẩn tất cả tab-content trong page đó
+            document.querySelectorAll(`#page-${pagePrefix} .tab-content`).forEach(content => {
+                content.classList.add('hidden');
+            });
+            // Hủy active tất cả button tab
+            document.querySelectorAll(`#page-${pagePrefix} .flex button`).forEach(button => {
+                button.classList.remove('text-green-400', 'border-green-400');
+                button.classList.add('text-gray-500');
+            });
+            
+            // Hiển thị tab-content được chọn
+            document.getElementById(`tab-content-${pagePrefix}-${tabId}`).classList.remove('hidden');
+            // Active button tab được chọn
+            const tabButton = document.getElementById(`tab-${pagePrefix}-${tabId}`);
+            tabButton.classList.add('text-green-400', 'border-green-400');
+            tabButton.classList.remove('text-gray-500');
+        };
+
+        // Modal
+        window.showModal = (title, message) => {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        };
+        window.closeModal = () => {
+            document.getElementById('custom-modal').classList.add('hidden');
+        };
+
+        // --- CHẠY ỨNG DỤNG ---
+        initializeAppCore();
+
+    </script>
+</body>
+</html>
