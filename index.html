@@ -268,9 +268,9 @@
             <!-- Chi tiết sân (ẩn) -->
             <div id="pitch-detail-view" class="hidden mt-6 bg-gray-800 p-4 rounded-lg">
                 <h3 id="detail-pitch-name" class="text-2xl font-bold"></h3>
-                <!-- MỚI: Thêm thẻ p cho địa chỉ -->
                 <p id="detail-pitch-address" class="text-gray-300 mb-1"></p>
-                <p id="detail-pitch-contact" class="text-green-400"></p>
+                <!-- SỬA: Thêm class whitespace-pre-wrap và break-words -->
+                <p id="detail-pitch-contact" class="text-green-400 whitespace-pre-wrap break-words"></p>
                 <p id="detail-pitch-location" class="text-gray-400"></p>
                 <h4 class="text-lg font-semibold mt-4 mb-2">Lịch Đặt Của Sân</h4>
                 <div id="detail-pitch-schedule" class="space-y-2">
@@ -1027,7 +1027,10 @@
             document.getElementById('detail-pitch-name').textContent = pitch.name;
             // SỬA: Thêm địa chỉ
             document.getElementById('detail-pitch-address').textContent = `Địa chỉ: ${pitch.address || 'Chưa cập nhật'}`;
-            document.getElementById('detail-pitch-contact').textContent = `Liên hệ: ${pitch.contact}`;
+            // SỬA: Thêm class whitespace-pre-wrap và break-words
+            const contactEl = document.getElementById('detail-pitch-contact');
+            contactEl.textContent = `Liên hệ: ${pitch.contact}`;
+            contactEl.className = 'text-green-400 whitespace-pre-wrap break-words'; // Đặt class ở đây
             document.getElementById('detail-pitch-location').textContent = `Khu vực: ${pitch.location}`;
             
             const scheduleEl = document.getElementById('detail-pitch-schedule');
