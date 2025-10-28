@@ -741,7 +741,8 @@
                 }
                 listEl.innerHTML = '';
                 snapshot.forEach(doc => {
-                    listEl.appendChild(createPromotionCard(doc.data(), true)); // true = public view
+                    // SỬA: Pass cả ID vào createPromotionCard
+                    listEl.appendChild(createPromotionCard({id: doc.id, ...doc.data()}, true)); // true = public view
                 });
             }, (error) => console.error("Lỗi tải khuyến mãi: ", error));
         }
@@ -806,7 +807,8 @@
                 }
                 promotionListEl.innerHTML = '';
                 snapshot.forEach(doc => {
-                    promotionListEl.appendChild(createPromotionCard(doc.data(), false)); // false = owner view
+                     // SỬA: Pass cả ID vào createPromotionCard
+                    promotionListEl.appendChild(createPromotionCard({id: doc.id, ...doc.data()}, false)); // false = owner view
                 });
             }, (error) => console.error("Lỗi tải khuyến mãi: ", error));
         }
@@ -1254,24 +1256,31 @@
         // --- TIỆN ÍCH CHUNG ---
         
         // Tạo thẻ Khuyến mãi/Thông báo
+        // SỬA: Thêm nút xóa nếu isPublic = false
         function createPromotionCard(post, isPublic) {
             const postEl = document.createElement('div');
-            postEl.className = `bg-gray-800 p-4 rounded-lg ${isPublic ? '' : 'border border-gray-700'}`;
+             // SỬA: Thêm class 'relative'
+            postEl.className = `bg-gray-800 p-4 rounded-lg relative ${isPublic ? '' : 'border border-gray-700'}`;
             
             let header = '';
-            if (isPublic) {
+            let deleteButtonHTML = '';
+
+            if (isPublic) { // Giao diện người chơi
                 header = `
                     <p class="text-sm font-semibold text-blue-400">${post.pitchName}</p>
                     <p class="text-xs text-gray-500 mb-2">${post.pitchLocation}</p>
                 `;
+            } else { // Giao diện chủ sân (owner view)
+                 // SỬA: Thêm nút xóa
+                deleteButtonHTML = `<button onclick="confirmDeletePromotion('${post.id}')" class="absolute top-2 right-2 text-red-500 hover:text-red-400 text-xs p-1 z-10">Xóa</button>`;
             }
             
             postEl.innerHTML = `
+                ${deleteButtonHTML}
                 ${header}
-                <p class="text-gray-300">${post.content}</p>
+                <p class="text-gray-300 whitespace-pre-wrap break-words">${post.content}</p>
                 <p class="text-xs text-gray-500 mt-2">${post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleString('vi-VN') : 'Vừa xong'}</p>
             `;
-            // TODO: Thêm nút xóa cho chủ sân (bài đăng khuyến mãi)
             return postEl;
         }
 
@@ -1436,6 +1445,32 @@
                 showModal("Lỗi", "Không thể xóa bài đăng. Vui lòng thử lại.");
             }
         }
+        
+        // MỚI: Hàm xác nhận xóa bài đăng khuyến mãi
+        window.confirmDeletePromotion = (promotionId) => {
+             showModal(
+                `Xác nhận Xóa Bài Đăng`,
+                `Bạn có chắc chắn muốn xóa bài đăng khuyến mãi/thông báo này không?`,
+                () => { // Hàm sẽ chạy khi bấm "Xác nhận Xóa"
+                   deletePromotion(promotionId);
+                }
+            );
+        };
+
+        // MỚI: Hàm xóa bài đăng khuyến mãi
+        async function deletePromotion(promotionId) {
+            console.log("Đang xóa promotion:", promotionId);
+            try {
+                const promotionRef = doc(db, promotionsCollectionPath, promotionId);
+                await deleteDoc(promotionRef);
+                showModal("Thành công", "Đã xóa bài đăng.");
+                // Dữ liệu sẽ tự cập nhật trên giao diện nhờ onSnapshot
+            } catch (error) {
+                console.error("Lỗi xóa promotion:", error);
+                showModal("Lỗi", "Không thể xóa bài đăng. Vui lòng thử lại.");
+            }
+        }
+
 
         // --- CHẠY ỨNG DỤNG ---
         initializeAppCore();
