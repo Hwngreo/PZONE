@@ -181,10 +181,10 @@
 
             <!-- Lịch sân -->
             <div>
-                <h3 class="text-xl font-semibold mb-2">Lịch Sân Hôm Nay</h3>
-                <div id="pitch-schedule-list" class="space-y-2 bg-gray-800 p-4 rounded-lg min-h-[100px]">
-                    <!-- Lịch đặt sẽ được tải vào đây -->
-                    <p class="text-gray-500">Chưa có lịch đặt nào hôm nay.</p>
+                <h3 class="text-xl font-semibold mb-2">Quản Lý Lịch Đặt Sân</h3>
+                <div id="pitch-schedule-list" class="space-y-4 bg-gray-800 p-4 rounded-lg min-h-[100px]">
+                    <!-- Lịch đặt sẽ được tải vào đây, nhóm theo ngày -->
+                    <p class="text-gray-500">Chưa có lịch đặt nào.</p>
                 </div>
             </div>
 
@@ -539,7 +539,8 @@
             onSnapshot, 
             serverTimestamp,
             updateDoc,
-            deleteDoc // MỚI: Import deleteDoc
+            deleteDoc, // MỚI: Import deleteDoc
+            orderBy // MỚI: Import orderBy
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- BIẾN TOÀN CỤC ---
@@ -771,29 +772,60 @@
             // Tải lịch sân (bookings)
             const scheduleListEl = document.getElementById('pitch-schedule-list');
             const bookingsPath = `${pitchesCollectionPath}/${pitch.id}/bookings`; // Dùng pitch.id
-            const bookingsQuery = query(collection(db, bookingsPath)); // Sắp xếp theo ngày
+            // SỬA: Thêm orderBy để sắp xếp theo ngày và giờ
+            const bookingsQuery = query(collection(db, bookingsPath), orderBy("date"), orderBy("startTime")); 
             
             scheduleUnsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
                 if (snapshot.empty) {
                     scheduleListEl.innerHTML = '<p class="text-gray-500">Chưa có lịch đặt.</p>';
                     return;
                 }
-                scheduleListEl.innerHTML = '';
+                scheduleListEl.innerHTML = ''; // Xóa nội dung cũ
+                
+                // SỬA: Nhóm booking theo ngày
+                const bookingsByDate = {};
                 snapshot.forEach(doc => {
-                    const booking = doc.data();
-                    const bookingEl = document.createElement('div');
-                    bookingEl.className = 'bg-gray-700 p-3 rounded-lg flex justify-between items-center';
-                    bookingEl.innerHTML = `
-                        <div>
-                            <p class="font-semibold">${booking.date} (${booking.startTime} - ${booking.endTime})</p>
-                            <p class="text-sm text-gray-300">${booking.notes || 'Không có ghi chú'}</p>
-                        </div>
-                        <button class="text-red-500 hover:text-red-400">&times;</button>
-                    `;
-                    // TODO: Thêm sự kiện xóa booking
-                    scheduleListEl.appendChild(bookingEl);
+                    const booking = { id: doc.id, ...doc.data() }; // Lấy cả ID
+                    if (!bookingsByDate[booking.date]) {
+                        bookingsByDate[booking.date] = [];
+                    }
+                    bookingsByDate[booking.date].push(booking);
                 });
-            }, (error) => console.error("Lỗi tải lịch sân: ", error));
+
+                // SỬA: Sắp xếp các ngày và hiển thị
+                const sortedDates = Object.keys(bookingsByDate).sort();
+                sortedDates.forEach(date => {
+                    const dateHeader = document.createElement('h4');
+                    dateHeader.className = 'text-lg font-semibold text-gray-300 mt-4 mb-2';
+                    dateHeader.textContent = `Ngày: ${date}`;
+                    scheduleListEl.appendChild(dateHeader);
+
+                    // Các booking trong ngày đã được sắp xếp bởi query
+                    bookingsByDate[date].forEach(booking => {
+                        const bookingEl = document.createElement('div');
+                        bookingEl.className = 'bg-gray-700 p-3 rounded-lg flex justify-between items-center';
+                        // SỬA: Thêm onclick cho nút xóa, dùng icon thùng rác, làm nút to hơn
+                        bookingEl.innerHTML = `
+                            <div>
+                                <p class="font-semibold">${booking.startTime} - ${booking.endTime}</p>
+                                <p class="text-sm text-gray-300">${booking.notes || 'Không có ghi chú'}</p>
+                            </div>
+                            <button onclick="confirmDeleteBooking('${booking.id}', '${pitch.id}')" class="text-red-500 hover:text-red-400 p-2 text-xl">
+                                <ion-icon name="trash-outline"></ion-icon>
+                            </button>
+                        `;
+                        scheduleListEl.appendChild(bookingEl);
+                    });
+                });
+
+            }, (error) => {
+                 console.error("Lỗi tải lịch sân: ", error);
+                 scheduleListEl.innerHTML = '<p class="text-red-500 text-sm">Lỗi tải lịch sân. Có thể bạn cần tạo index trong Firebase.</p>';
+                 // Gợi ý tạo index nếu có lỗi
+                 if (error.code === 'failed-precondition') {
+                     alert("Lỗi Firestore: Cần tạo index để sắp xếp lịch đặt. Vui lòng kiểm tra Console log (F12) để xem link tạo index tự động.");
+                 }
+            });
 
             // Tải khuyến mãi của sân này
             const promotionListEl = document.getElementById('promotion-list');
@@ -929,6 +961,11 @@
                 showModal("Lỗi", "Vui lòng chọn ngày và giờ.");
                 return;
             }
+            // MỚI: Kiểm tra giờ kết thúc > giờ bắt đầu
+            if (endTime <= startTime) {
+                 showModal("Lỗi", "Giờ kết thúc phải sau giờ bắt đầu.");
+                return;
+            }
 
             try {
                 const bookingsPath = `${pitchesCollectionPath}/${currentPitchId}/bookings`;
@@ -1039,21 +1076,44 @@
             scheduleEl.innerHTML = '<p class="text-gray-400">Đang tải lịch sân...</p>';
             
             const bookingsPath = `${pitchesCollectionPath}/${pitch.id}/bookings`;
-            const bookingsQuery = query(collection(db, bookingsPath)); // Lấy lịch đặt
+             // SỬA: Thêm orderBy để sắp xếp theo ngày và giờ cho người xem
+            const bookingsQuery = query(collection(db, bookingsPath), orderBy("date"), orderBy("startTime"));
             
             detailScheduleUnsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
                  if (snapshot.empty) {
                     scheduleEl.innerHTML = '<p class="text-gray-300">Sân chưa có lịch đặt. Vui lòng liên hệ chủ sân.</p>';
                     return;
                 }
-                scheduleEl.innerHTML = '';
+                scheduleEl.innerHTML = ''; // Xóa nội dung cũ
+                 // SỬA: Nhóm booking theo ngày cho người xem
+                const bookingsByDate = {};
                 snapshot.forEach(doc => {
-                    const booking = doc.data();
-                    const bookingEl = document.createElement('div');
-                    bookingEl.className = 'bg-gray-700 p-2 rounded-md';
-                    bookingEl.textContent = `Đã đặt: ${booking.date} (${booking.startTime} - ${booking.endTime})`;
-                    scheduleEl.appendChild(bookingEl);
+                    const booking = { id: doc.id, ...doc.data() }; 
+                    if (!bookingsByDate[booking.date]) {
+                        bookingsByDate[booking.date] = [];
+                    }
+                    bookingsByDate[booking.date].push(booking);
                 });
+
+                 // SỬA: Sắp xếp các ngày và hiển thị cho người xem
+                const sortedDates = Object.keys(bookingsByDate).sort();
+                sortedDates.forEach(date => {
+                    const dateHeader = document.createElement('h5'); // Dùng h5 cho nhỏ hơn
+                    dateHeader.className = 'text-md font-semibold text-gray-300 mt-3 mb-1';
+                    dateHeader.textContent = `Ngày: ${date}`;
+                    scheduleEl.appendChild(dateHeader);
+
+                    bookingsByDate[date].forEach(booking => {
+                        const bookingEl = document.createElement('div');
+                        bookingEl.className = 'bg-gray-700 p-2 rounded-md';
+                        // SỬA: Chỉ hiển thị giờ, không hiển thị ghi chú cho người xem
+                        bookingEl.textContent = `Đã đặt: ${booking.startTime} - ${booking.endTime}`; 
+                        scheduleEl.appendChild(bookingEl);
+                    });
+                });
+            }, (error) => {
+                console.error("Lỗi tải lịch sân chi tiết: ", error);
+                scheduleEl.innerHTML = '<p class="text-red-500 text-sm">Lỗi tải lịch sân.</p>';
             });
 
             document.getElementById('pitch-detail-view').classList.remove('hidden');
@@ -1468,6 +1528,35 @@
             } catch (error) {
                 console.error("Lỗi xóa promotion:", error);
                 showModal("Lỗi", "Không thể xóa bài đăng. Vui lòng thử lại.");
+            }
+        }
+
+        // MỚI: Hàm xác nhận xóa lịch đặt
+        window.confirmDeleteBooking = (bookingId, pitchId) => {
+             showModal(
+                `Xác nhận Xóa Lịch Đặt`,
+                `Bạn có chắc chắn muốn xóa lịch đặt này không?`,
+                () => { // Hàm sẽ chạy khi bấm "Xác nhận Xóa"
+                   deleteBooking(bookingId, pitchId);
+                }
+            );
+        };
+
+        // MỚI: Hàm xóa lịch đặt
+        async function deleteBooking(bookingId, pitchId) {
+            console.log(`Đang xóa booking ${bookingId} của sân ${pitchId}`);
+             if (!pitchId || !bookingId) {
+                showModal("Lỗi", "Không tìm thấy thông tin sân hoặc lịch đặt.");
+                return;
+            }
+            try {
+                const bookingRef = doc(db, pitchesCollectionPath, pitchId, 'bookings', bookingId);
+                await deleteDoc(bookingRef);
+                showModal("Thành công", "Đã xóa lịch đặt.");
+                // Dữ liệu sẽ tự cập nhật trên giao diện nhờ onSnapshot
+            } catch (error) {
+                console.error("Lỗi xóa booking:", error);
+                showModal("Lỗi", "Không thể xóa lịch đặt. Vui lòng thử lại.");
             }
         }
 
