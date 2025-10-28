@@ -497,14 +497,23 @@
         </div>
     </div>
 
-    <!-- Modal (Thông báo tùy chỉnh) -->
+    <!-- Modal (Thông báo tùy chỉnh & Xác nhận) -->
     <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
         <div class="bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full">
             <h3 id="modal-title" class="text-xl font-semibold mb-4">Thông báo</h3>
             <p id="modal-message" class="text-gray-300 mb-6">Nội dung thông báo...</p>
-            <button onclick="closeModal()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">
-                Đã hiểu
-            </button>
+            <!-- SỬA: Thêm nút Hủy/Xác nhận -->
+            <div class="flex justify-end gap-3 mt-6">
+                <button id="modal-cancel-btn" onclick="closeModal()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg hidden">
+                    Hủy
+                </button>
+                <button id="modal-confirm-btn" onclick="confirmAction()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg hidden">
+                    Xác nhận Xóa
+                </button>
+                <button id="modal-ok-btn" onclick="closeModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Đã hiểu
+                </button>
+            </div>
         </div>
     </div>
 
@@ -529,7 +538,8 @@
             where, 
             onSnapshot, 
             serverTimestamp,
-            updateDoc
+            updateDoc,
+            deleteDoc // MỚI: Import deleteDoc
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- BIẾN TOÀN CỤC ---
@@ -539,6 +549,9 @@
         let allPitchesData = []; // Cache danh sách sân
         let allMatchmakingPosts = []; // Cache danh sách kèo
         let allJoinGamePosts = []; // Cache danh sách đá ké
+        // MỚI: Biến lưu callback cho modal xác nhận
+        let currentConfirmCallback = null;
+        let currentCancelCallback = null;
 
         // --- CẤU HÌNH FIREBASE ---
         // Các biến này ( __firebase_config, __app_id, __initial_auth_token ) sẽ được cung cấp bởi môi trường chạy
@@ -633,19 +646,27 @@
                     const pitch = { id: doc.id, ...doc.data() };
                     const pitchEl = document.createElement('div');
                     pitchEl.className = 'bg-gray-800 p-4 rounded-lg shadow-md flex justify-between items-center';
+                    // SỬA: Thêm nút Xóa và các class để dễ query
                     pitchEl.innerHTML = `
                         <div>
                             <h4 class="text-lg font-semibold">${pitch.name}</h4>
                             <p class="text-sm text-gray-400">${pitch.location} - ${pitch.type}</p>
                         </div>
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-sm">Quản Lý</button>
+                        <div class="flex gap-2">
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-sm manage-btn">Quản Lý</button>
+                            <button class="bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-lg text-sm delete-pitch-btn">Xóa</button>
+                        </div>
                     `;
-                    pitchEl.querySelector('button').onclick = () => {
+                    // SỬA: Gán sự kiện cho từng nút
+                    pitchEl.querySelector('.manage-btn').onclick = () => {
                         currentPitchId = pitch.id;
-                        // SỬA: Cập nhật header H2
                         document.getElementById('manage-pitch-name-header').textContent = pitch.name; 
                         loadPitchDetails(pitch); // Pass cả object 'pitch'
                         showPage('page-owner-manage');
+                    };
+                    pitchEl.querySelector('.delete-pitch-btn').onclick = () => {
+                        // MỚI: Gọi hàm xác nhận xóa sân
+                        confirmDeletePitch(pitch.id, pitch.name);
                     };
                     listEl.appendChild(pitchEl);
                 });
@@ -1074,8 +1095,15 @@
         // Tạo thẻ Bài Đăng Tìm Kèo
         function createMatchmakingPostCard(post) {
             const postEl = document.createElement('div');
-            postEl.className = 'bg-gray-800 p-4 rounded-lg shadow-md';
+            // MỚI: Thêm class 'relative'
+            postEl.className = 'bg-gray-800 p-4 rounded-lg shadow-md relative'; 
+            // MỚI: Thêm nút xóa nếu đúng userId
+            let deleteButtonHTML = '';
+            if (post.userId === userId) {
+                deleteButtonHTML = `<button onclick="confirmDeletePost('matchmaking', '${post.id}')" class="absolute top-2 right-2 text-red-500 hover:text-red-400 text-xs p-1 z-10">Xóa</button>`;
+            }
             postEl.innerHTML = `
+                ${deleteButtonHTML}
                 <p class="text-sm text-gray-400">Khu vực: <span class="font-semibold text-gray-200">${post.location}</span></p>
                 <p class="text-sm text-gray-400">Team mình: <span class="font-semibold text-green-400">${post.teamLevel}</span></p>
                 <p class="text-sm text-gray-400">Tìm đối: <span class="font-semibold text-orange-400">${post.opponentLevel}</span></p>
@@ -1170,10 +1198,17 @@
         // Tạo thẻ Bài Đăng Đá Ké
         function createJoinGamePostCard(post) {
             const postEl = document.createElement('div');
-            postEl.className = 'bg-gray-800 p-4 rounded-lg shadow-md';
+            // MỚI: Thêm class 'relative'
+            postEl.className = 'bg-gray-800 p-4 rounded-lg shadow-md relative';
+             // MỚI: Thêm nút xóa nếu đúng userId
+            let deleteButtonHTML = '';
+            if (post.userId === userId) {
+                deleteButtonHTML = `<button onclick="confirmDeletePost('joinGame', '${post.id}')" class="absolute top-2 right-2 text-red-500 hover:text-red-400 text-xs p-1 z-10">Xóa</button>`;
+            }
             
             if(post.type === 'need_player') {
                 postEl.innerHTML = `
+                    ${deleteButtonHTML}
                     <p class="font-semibold text-orange-400">ĐỘI CẦN NGƯỜI (${post.count} người)</p>
                     <p class="text-sm text-gray-400">Khu vực: <span class="font-semibold text-gray-200">${post.location}</span></p>
                     <p class="text-sm text-gray-400">Trình độ: <span class="font-semibold text-gray-200">${post.level}</span></p>
@@ -1182,6 +1217,7 @@
                 `;
             } else { // find_team
                 postEl.innerHTML = `
+                    ${deleteButtonHTML}
                     <p class="font-semibold text-teal-400">NGƯỜI TÌM ĐỘI (${post.count} người)</p>
                     <p class="text-sm text-gray-400">Khu vực: <span class="font-semibold text-gray-200">${post.location}</span></p>
                     <p class="text-sm text-gray-400">Trình độ: <span class="font-semibold text-gray-200">${post.level}</span></p>
@@ -1232,7 +1268,7 @@
                 <p class="text-gray-300">${post.content}</p>
                 <p class="text-xs text-gray-500 mt-2">${post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleString('vi-VN') : 'Vừa xong'}</p>
             `;
-            // TODO: Thêm nút xóa cho chủ sân
+            // TODO: Thêm nút xóa cho chủ sân (bài đăng khuyến mãi)
             return postEl;
         }
 
@@ -1283,15 +1319,120 @@
             tabButton.classList.remove('text-gray-500');
         };
 
-        // Modal
-        window.showModal = (title, message) => {
+        // Modal (Thông báo & Xác nhận)
+        // SỬA: Cập nhật hàm showModal để xử lý nút xác nhận
+        window.showModal = (title, message, confirmCallback = null, cancelCallback = null) => {
             document.getElementById('modal-title').textContent = title;
             document.getElementById('modal-message').textContent = message;
+
+            const okBtn = document.getElementById('modal-ok-btn');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+
+            currentConfirmCallback = confirmCallback;
+            currentCancelCallback = cancelCallback;
+
+            if (confirmCallback) { // Nếu có callback xác nhận -> Hiện nút Hủy/Xóa, ẩn OK
+                okBtn.classList.add('hidden');
+                cancelBtn.classList.remove('hidden');
+                confirmBtn.classList.remove('hidden');
+            } else { // Nếu chỉ là thông báo -> Hiện OK, ẩn Hủy/Xóa
+                okBtn.classList.remove('hidden');
+                cancelBtn.classList.add('hidden');
+                confirmBtn.classList.add('hidden');
+            }
+
             document.getElementById('custom-modal').classList.remove('hidden');
         };
+
+        // SỬA: Cập nhật closeModal để gọi cancelCallback nếu có
         window.closeModal = () => {
+            if (currentCancelCallback) {
+                try {
+                    currentCancelCallback();
+                } catch (e) { console.error("Error in cancel callback", e); }
+            }
             document.getElementById('custom-modal').classList.add('hidden');
+            currentConfirmCallback = null;
+            currentCancelCallback = null;
         };
+
+        // MỚI: Hàm xử lý khi bấm nút Xác nhận
+        window.confirmAction = () => {
+            if (currentConfirmCallback) {
+                try {
+                    currentConfirmCallback();
+                } catch (e) { console.error("Error in confirm callback", e); }
+            }
+            closeModal(); // Tự động đóng modal sau khi xác nhận
+        };
+
+
+        // --- MỚI: HÀM XÓA DỮ LIỆU ---
+
+        // Hàm xác nhận xóa sân
+        window.confirmDeletePitch = (pitchId, pitchName) => {
+            showModal(
+                "Xác nhận Xóa Sân", 
+                `Bạn có chắc chắn muốn xóa sân "${pitchName}" không? Hành động này không thể hoàn tác.`,
+                () => { // Hàm sẽ chạy khi bấm "Xác nhận Xóa"
+                    deletePitch(pitchId);
+                }
+            );
+        };
+
+        // Hàm xóa sân (gọi bởi confirmDeletePitch)
+        async function deletePitch(pitchId) {
+            console.log("Đang xóa sân:", pitchId);
+            try {
+                const pitchRef = doc(db, pitchesCollectionPath, pitchId);
+                await deleteDoc(pitchRef);
+                showModal("Thành công", "Đã xóa sân.");
+                 // Tự động quay về menu chính sau khi xóa thành công
+                showPage('page-owner-menu'); 
+                // Lưu ý: Thao tác này chưa xóa các subcollection (như bookings). 
+                // Cần xử lý phức tạp hơn nếu muốn xóa toàn bộ dữ liệu liên quan.
+            } catch (error) {
+                console.error("Lỗi xóa sân:", error);
+                showModal("Lỗi", "Không thể xóa sân. Vui lòng thử lại.");
+            }
+        }
+
+        // Hàm xác nhận xóa bài đăng (kèo hoặc đá ké)
+        window.confirmDeletePost = (type, postId) => {
+            let typeName = type === 'matchmaking' ? 'bài đăng tìm kèo' : 'bài đăng đá ké';
+            showModal(
+                `Xác nhận Xóa Bài Đăng`,
+                `Bạn có chắc chắn muốn xóa ${typeName} này không?`,
+                () => { // Hàm sẽ chạy khi bấm "Xác nhận Xóa"
+                   deletePost(type, postId);
+                }
+            );
+        };
+
+        // Hàm xóa bài đăng (gọi bởi confirmDeletePost)
+        async function deletePost(type, postId) {
+            console.log(`Đang xóa ${type} post:`, postId);
+            let collectionPath;
+            if (type === 'matchmaking') {
+                collectionPath = matchmakingPostsCollectionPath;
+            } else if (type === 'joinGame') {
+                collectionPath = joinGamePostsCollectionPath;
+            } else {
+                showModal("Lỗi", "Loại bài đăng không hợp lệ.");
+                return;
+            }
+
+            try {
+                const postRef = doc(db, collectionPath, postId);
+                await deleteDoc(postRef);
+                showModal("Thành công", "Đã xóa bài đăng.");
+                // Dữ liệu sẽ tự cập nhật trên giao diện nhờ onSnapshot
+            } catch (error) {
+                console.error(`Lỗi xóa ${type} post:`, error);
+                showModal("Lỗi", "Không thể xóa bài đăng. Vui lòng thử lại.");
+            }
+        }
 
         // --- CHẠY ỨNG DỤNG ---
         initializeAppCore();
