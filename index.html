@@ -131,7 +131,8 @@
                 </div>
                  <div>
                     <label for="pitch-contact" class="block text-sm font-medium text-gray-300 mb-1">Thông tin liên hệ (SĐT, Zalo)</label>
-                    <input type="text" id="pitch-contact" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ: 0905123456 (Anh Bảy)">
+                    <!-- SỬA: Thay <input> bằng <textarea> -->
+                    <textarea id="pitch-contact" rows="3" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Ví dụ:&#10;SĐT: 0905123456 (Anh Bảy)&#10;Zalo: 0905123456"></textarea>
                 </div>
                 <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all mt-4">Tạo Sân</button>
             </form>
@@ -449,7 +450,7 @@
                             <option value="Yếu">Yếu</option>
                             <option value="Trung bình">Trung bình</option>
                             <option value="Khá">Khá</option>
-                            <option value="Mạnh">Mạnh</option>
+                            <option value."Mạnh">Mạnh</option>
                         </select>
                     </div>
                     <div>
@@ -485,7 +486,7 @@
                     <select id="filter-join-type" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
                         <option value="">Tất cả bài đăng</option>
                         <option value="need_player">Đội cần người</option>
-                        <option value="find_team">Người tìm đội</option>
+                        <option value="find_team">Người tìm đội</Vn>
                     </select>
                 </div>
                 <div id="join-game-posts-list" class="space-y-3 max-h-96 overflow-y-auto">
@@ -550,7 +551,8 @@
   messagingSenderId : "793942989163" , 
   appId : "1:793942989163:web:1fb88fb936346c494c542e" , 
   measurementId : "G-XF0YD5NZVZ" 
-};
+        };
+
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // Đường dẫn cơ sở dữ liệu (công khai)
